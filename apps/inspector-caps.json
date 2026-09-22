@@ -1,0 +1,11 @@
+{
+  "platformName": "Android",
+  "appium:automationName": "UiAutomator2",
+  "appium:deviceName": "Android",
+  "appium:udid": "emulator-5554",
+  "appium:appPackage": "com.aungsha.app",
+  "appium:appActivity": "com.aungsha.app.MainActivity",
+  "appium:noReset": true,
+  "appium:autoGrantPermissions": true,
+  "appium:newCommandTimeout": 3600
+}

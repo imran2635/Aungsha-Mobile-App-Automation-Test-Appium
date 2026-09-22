@@ -1,0 +1,160 @@
+[
+  {
+    "label": "Email",
+    "clickable": "true",
+    "password": "false",
+    "class": "android.view.View",
+    "bounds": "[540,566][993,665]",
+    "best": {
+      "strategy": "accessibility id",
+      "selector": "Email",
+      "wdio": "~Email"
+    },
+    "all": [
+      {
+        "strategy": "accessibility id",
+        "selector": "Email",
+        "wdio": "~Email"
+      },
+      {
+        "strategy": "xpath",
+        "selector": "//*[@content-desc=\"Email\"]",
+        "wdio": "//*[@content-desc=\"Email\"]"
+      }
+    ]
+  },
+  {
+    "label": "Email Address",
+    "clickable": "false",
+    "password": "false",
+    "class": "android.view.View",
+    "bounds": "[74,731][302,781]",
+    "best": {
+      "strategy": "accessibility id",
+      "selector": "Email Address",
+      "wdio": "~Email Address"
+    },
+    "all": [
+      {
+        "strategy": "accessibility id",
+        "selector": "Email Address",
+        "wdio": "~Email Address"
+      },
+      {
+        "strategy": "xpath",
+        "selector": "//*[@content-desc=\"Email Address\"]",
+        "wdio": "//*[@content-desc=\"Email Address\"]"
+      }
+    ]
+  },
+  {
+    "label": "android.widget.EditText",
+    "clickable": "true",
+    "password": "false",
+    "class": "android.widget.EditText",
+    "bounds": "[188,836][1003,894]",
+    "best": {
+      "strategy": "class name",
+      "selector": "android.widget.EditText",
+      "wdio": "android.widget.EditText"
+    },
+    "all": [
+      {
+        "strategy": "class name",
+        "selector": "android.widget.EditText",
+        "wdio": "android.widget.EditText"
+      }
+    ]
+  },
+  {
+    "label": "Password",
+    "clickable": "false",
+    "password": "false",
+    "class": "android.view.View",
+    "bounds": "[74,975][230,1025]",
+    "best": {
+      "strategy": "accessibility id",
+      "selector": "Password",
+      "wdio": "~Password"
+    },
+    "all": [
+      {
+        "strategy": "accessibility id",
+        "selector": "Password",
+        "wdio": "~Password"
+      },
+      {
+        "strategy": "xpath",
+        "selector": "//*[@content-desc=\"Password\"]",
+        "wdio": "//*[@content-desc=\"Password\"]"
+      }
+    ]
+  },
+  {
+    "label": "android.widget.EditText",
+    "clickable": "true",
+    "password": "true",
+    "class": "android.widget.EditText",
+    "bounds": "[186,1080][888,1138]",
+    "best": {
+      "strategy": "class name",
+      "selector": "android.widget.EditText",
+      "wdio": "android.widget.EditText"
+    },
+    "all": [
+      {
+        "strategy": "class name",
+        "selector": "android.widget.EditText",
+        "wdio": "android.widget.EditText"
+      }
+    ]
+  },
+  {
+    "label": "Sign in",
+    "clickable": "false",
+    "password": "false",
+    "class": "android.widget.Button",
+    "bounds": "[74,1251][1006,1387]",
+    "best": {
+      "strategy": "accessibility id",
+      "selector": "Sign in",
+      "wdio": "~Sign in"
+    },
+    "all": [
+      {
+        "strategy": "accessibility id",
+        "selector": "Sign in",
+        "wdio": "~Sign in"
+      },
+      {
+        "strategy": "xpath",
+        "selector": "//*[@content-desc=\"Sign in\"]",
+        "wdio": "//*[@content-desc=\"Sign in\"]"
+      }
+    ]
+  },
+  {
+    "label": "Forgot password?",
+    "clickable": "true",
+    "password": "false",
+    "class": "android.view.View",
+    "bounds": "[712,1419][1006,1490]",
+    "best": {
+      "strategy": "accessibility id",
+      "selector": "Forgot password?",
+      "wdio": "~Forgot password?"
+    },
+    "all": [
+      {
+        "strategy": "accessibility id",
+        "selector": "Forgot password?",
+        "wdio": "~Forgot password?"
+      },
+      {
+        "strategy": "xpath",
+        "selector": "//*[@content-desc=\"Forgot password?\"]",
+        "wdio": "//*[@content-desc=\"Forgot password?\"]"
+      }
+    ]
+  }
+]
