@@ -554,12 +554,15 @@ require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
       await driver.pause(5000);
     }
 
+    let buyOk = false;
+    let receiptOk = false;
+
     await dump('flow-final');
     const finalSrc = await driver.getPageSource();
-    const ok = /Success|successful|Thank you|Purchase|Portfolio|Home|Share Purchased|View Receipt/i.test(
+    buyOk = /Success|successful|Thank you|Purchase|Portfolio|Home|Share Purchased|View Receipt/i.test(
       finalSrc
     );
-    console.log(ok ? 'BUY_FLOW_OK' : 'BUY_FLOW_REACHED_PAYMENT');
+    console.log(buyOk ? 'BUY_FLOW_OK' : 'BUY_FLOW_REACHED_PAYMENT');
 
     // Post-purchase: View Receipt + View Share Certificate (+ download/save)
     const waitForReceiptUi = async (timeoutMs = 60000) => {
@@ -660,7 +663,7 @@ require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
     if (await waitForReceiptUi(90000)) {
       console.log('11) Success UI with Receipt / Certificate');
       await dump('flow-success-receipt-ui');
-      await openAndDownload('View Receipt', 'receipt');
+      const receiptDone = await openAndDownload('View Receipt', 'receipt');
       if (!(await (await driver.$('//*[contains(@content-desc,"View Share Certificate")]')).isExisting())) {
         for (let i = 0; i < 4; i += 1) {
           await driver.back();
@@ -674,13 +677,17 @@ require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
           }
         }
       }
-      await openAndDownload('View Share Certificate', 'certificate');
-      console.log('RECEIPT_CERT_OK');
+      const certDone = await openAndDownload('View Share Certificate', 'certificate');
+      receiptOk = Boolean(receiptDone && certDone);
+      console.log(receiptOk ? 'RECEIPT_CERT_OK' : 'RECEIPT_CERT_PARTIAL');
     } else {
       console.log('RECEIPT_UI_TIMEOUT — payment done but receipt buttons not shown');
     }
 
     console.log('DONE_PROJECT_BUY_FLOW');
+    if (!buyOk || !receiptOk) {
+      process.exitCode = 1;
+    }
   } finally {
     try {
       await driver.switchContext('NATIVE_APP');
@@ -691,5 +698,9 @@ require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
   }
 })().catch((err) => {
   console.error(err);
+  const line = '='.repeat(56);
+  console.log(`\n${line}`);
+  console.log('  RESULT: FAILED  — Buy Flow');
+  console.log(`${line}\n`);
   process.exit(1);
 });

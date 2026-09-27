@@ -45,4 +45,17 @@ exports.config = {
       fs.mkdirSync('./screenshots');
     }
   },
+  onComplete(exitCode) {
+    const line = '='.repeat(56);
+    if (exitCode === 0) {
+      console.log(`\n${line}`);
+      console.log('  RESULT: PASSED');
+      console.log(`${line}\n`);
+    } else {
+      console.log(`\n${line}`);
+      console.log('  RESULT: FAILED');
+      console.log(`  exit code: ${exitCode}`);
+      console.log(`${line}\n`);
+    }
+  },
 };
