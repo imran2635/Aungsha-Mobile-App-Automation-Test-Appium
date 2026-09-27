@@ -9,6 +9,7 @@
     "test:login": "wdio run wdio.conf.js --spec ./src/tests/login-flow.test.js",
     "test:buy": "wdio run wdio.conf.js --spec ./src/tests/buy-flow.test.js",
     "test:buy:script": "node ./scripts/run-with-banner.js ./scripts/project-buy-flow.js \"Buy Flow\"",
+    "test:buy:bkash": "node ./scripts/run-with-banner.js ./scripts/project-buy-bkash.js \"Buy Flow (bKash)\"",
     "test:buy:wdio": "wdio run wdio.conf.js --spec ./src/tests/buy-flow.test.js",
     "test:receipt": "node ./scripts/run-with-banner.js ./scripts/download-receipt-cert.js \"Receipt + Certificate\"",
     "inspect:device": "node ./scripts/inspect-device.js"
