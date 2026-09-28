@@ -11,6 +11,8 @@
     "test:buy:bkash": "wdio run wdio.conf.js --spec ./src/tests/buy-bkash.test.js",
     "test:buy:script": "node ./scripts/run-with-banner.js ./scripts/project-buy-flow.js \"Buy Flow mBANKING\"",
     "test:buy:bkash:script": "node ./scripts/run-with-banner.js ./scripts/project-buy-bkash.js \"Buy Flow bKash\"",
+    "test:buy:surjoypay:script": "node ./scripts/run-with-banner.js ./scripts/fund-balance-project-buy-surjoypay.js \"Buy Flow SurjoPay\"",
+    "test:buy:bkash-fund:script": "node ./scripts/run-with-banner.js ./scripts/fund-balance-project-buy-bkash.js \"Buy Flow Wallet + bKash\"",
     "test:receipt": "node ./scripts/run-with-banner.js ./scripts/download-receipt-cert.js \"Receipt + Certificate\"",
     "inspect:device": "node ./scripts/inspect-device.js"
   },

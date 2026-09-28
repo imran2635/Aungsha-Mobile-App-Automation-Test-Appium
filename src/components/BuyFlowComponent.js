@@ -37,20 +37,39 @@ class BuyFlowComponent {
   }
 
   /**
-   * @param {'mbanking' | 'bkash'} [paymentMethod]
+   * @param {'mbanking' | 'bkash' | 'surjoypay' | 'shurjopay'} [paymentMethod]
+   * @param {{ walletAmount?: number|string, resumePurchase?: boolean }} [options]
    */
-  async execute(paymentMethod = 'mbanking') {
-    const { email, password } = appConfig.getCredentials();
-    if (!email || !password) {
-      throw new Error('EMAIL / PASSWORD missing in .env');
+  async execute(paymentMethod = 'mbanking', options = {}) {
+    const method = String(paymentMethod || 'mbanking').toLowerCase();
+    const walletAmount = options.walletAmount ?? process.env.WALLET_AMOUNT;
+    const resumePurchase = options.resumePurchase === true || process.env.RESUME_PURCHASE === '1';
+
+    if (!resumePurchase) {
+      const { email, password } = appConfig.getCredentials();
+      if (!email || !password) {
+        throw new Error('EMAIL / PASSWORD missing in .env');
+      }
+      await DriverManager.terminateApp();
+      await DriverManager.launchApp();
+      await this._login(email, password);
+      await this._openCloud9();
+    } else {
+      console.log('[BuyFlowComponent] Resume from current Purchase Details');
+      try {
+        await this.driver.activateApp(appConfig.appPackage);
+      } catch {
+        // already foreground
+      }
     }
 
-    await DriverManager.terminateApp();
-    await DriverManager.launchApp();
+    if (walletAmount) {
+      console.log(`[BuyFlowComponent] Apply Wallet Balance ৳${walletAmount}`);
+      await this.projectBuyPage.applyWalletBalance(walletAmount);
+    }
 
-    await this._login(email, password);
-    await this._openCloud9();
-    await this._checkout(paymentMethod);
+    await this.projectBuyPage.confirmPurchase();
+    await this._checkout(method);
     await this._captureDocs();
   }
 
@@ -67,22 +86,38 @@ class BuyFlowComponent {
     await this.marketplacePage.openBuyShares();
     await this.marketplacePage.openCloud9Inani();
     await this.projectBuyPage.tapBuy();
-    await this.projectBuyPage.confirmPurchase();
+    // Stay on Purchase Details so wallet can be applied before Continue
   }
 
   /** @private */
   async _checkout(paymentMethod) {
     if (paymentMethod === 'bkash') {
-      console.log('[BuyFlowComponent] Payment → bKash');
+      console.log('[BuyFlowComponent] Payment → bKash (forced)');
+      // Wait for Choose payment method
+      await this.driver.waitUntil(
+        async () =>
+          this.projectBuyPage.isVisible(
+            [
+              '//*[contains(@content-desc,"bKash")]',
+              '//*[contains(@content-desc,"Choose payment")]',
+              '//*[contains(@content-desc,"Others")]',
+            ],
+            2000
+          ),
+        { timeout: 30000, timeoutMsg: 'Payment method screen did not appear' }
+      );
       await this.projectBuyPage.selectBkashPayment();
       await this.projectBuyPage.confirmPurchase();
+      await this.driver.pause(4000);
       await this.paymentGatewayPage.completeBkashPayment(appConfig.getBkashCredentials());
       return;
     }
 
+    // surjoypay / shurjopay / mbanking → Others → ShurjoPay WEBVIEW → mBANKING
     console.log('[BuyFlowComponent] Payment → Others → ShurjoPay → mBANKING');
     await this.projectBuyPage.selectOthersPayment();
     await this.projectBuyPage.confirmPurchase();
+    await this.projectBuyPage.selectSurjoPay();
     await this.driver.pause(6000);
     await this.paymentGatewayPage.completeMBankingPayment(appConfig.getMBankingCredentials());
   }
