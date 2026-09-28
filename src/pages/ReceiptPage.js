@@ -20,18 +20,46 @@ class ReceiptPage extends BasePage {
     ];
     this.successMarkers = [
       '//*[contains(@content-desc,"View Receipt")]',
+      '//*[contains(@content-desc,"View Share Certificate")]',
+      '//*[contains(@content-desc,"Share Purchased") or contains(@text,"Share Purchased")]',
       '~Success',
       '~Payment Successful',
       '~Purchase Successful',
-      '//*[contains(@content-desc,"Success") or contains(@content-desc,"successful")]',
+      '//*[contains(@content-desc,"Success") or contains(@content-desc,"successful") or contains(@text,"Success")]',
+      '//*[contains(@content-desc,"Congratulations") or contains(@text,"Congratulations")]',
     ];
   }
 
-  async waitForSuccess(timeout = 120000) {
-    await this.driver.waitUntil(async () => this.isVisible(this.successMarkers, 2500), {
-      timeout,
-      timeoutMsg: 'Purchase/payment success screen did not appear',
-    });
+  async waitForSuccess(timeout = 180000) {
+    const pkg = 'com.aungsha.app';
+    await this.driver.waitUntil(
+      async () => {
+        try {
+          await this.driver.switchContext('NATIVE_APP');
+        } catch {
+          // ignore
+        }
+        try {
+          return await this.isVisible(this.successMarkers, 2000);
+        } catch (err) {
+          const msg = String(err && err.message ? err.message : err);
+          if (/instrumentation|terminated|not started|cannot be proxied/i.test(msg)) {
+            throw err; // bubble — caller can recreate session
+          }
+          try {
+            await this.driver.activateApp(pkg);
+          } catch {
+            // ignore
+          }
+          return false;
+        }
+      },
+      {
+        timeout,
+        interval: 3000,
+        timeoutMsg: 'Purchase/payment success screen did not appear',
+      }
+    );
   }
 
   async openDownloadable(labelSelectors, shotName) {

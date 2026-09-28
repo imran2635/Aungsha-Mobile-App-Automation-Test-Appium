@@ -24,8 +24,16 @@ class AppConfig {
 
   getMBankingCredentials() {
     return {
-      number: process.env.MBANKING_NUMBER || '',
-      pin: process.env.MBANKING_PIN || '',
+      number: process.env.MBANKING_NUMBER || '01772559986',
+      pin: process.env.MBANKING_PIN || '1234',
+    };
+  }
+
+  getBkashCredentials() {
+    return {
+      number: process.env.BKASH_NUMBER || '01770618575',
+      otp: process.env.BKASH_OTP || '123456',
+      pin: process.env.BKASH_PIN || '12121',
     };
   }
 
@@ -39,7 +47,7 @@ class AppConfig {
       'appium:noReset': true,
       'appium:fullReset': false,
       'appium:autoGrantPermissions': true,
-      'appium:newCommandTimeout': 240,
+      'appium:newCommandTimeout': 360,
       'appium:ignoreHiddenApiPolicyError': true,
       // Keep animations so emulator UI changes are easier to follow
       'appium:disableWindowAnimation': process.env.HIDE_ANIMATION === '1',

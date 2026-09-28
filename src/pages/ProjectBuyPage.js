@@ -27,6 +27,13 @@ class ProjectBuyPage extends BasePage {
       '~Others',
     ];
 
+    this.bkashPayment = [
+      '//*[contains(@content-desc,"bKash")]',
+      '//*[contains(@content-desc,"Bkash")]',
+      '//*[contains(@content-desc,"bkash")]',
+      '~bKash',
+    ];
+
     this.sandboxToggles = [
       '~Sandbox',
       '//*[contains(@content-desc,"Sandbox") or contains(@content-desc,"sandbox")]',
@@ -93,7 +100,7 @@ class ProjectBuyPage extends BasePage {
   }
 
   /**
-   * Choose payment: Others (VISA + more) — SurjoPay path.
+   * Choose payment: Others (VISA + more) — SurjoPay / mBANKING path.
    */
   async selectOthersPayment() {
     if (await this.isVisible(this.othersPayment, 8000)) {
@@ -103,6 +110,21 @@ class ProjectBuyPage extends BasePage {
     }
     await this.tapAt(540, 1944);
     await this.show('Others payment by coords');
+  }
+
+  /**
+   * Choose payment: bKash (Recommended).
+   */
+  async selectBkashPayment() {
+    for (let i = 0; i < 4; i += 1) {
+      if (await this.isVisible(this.bkashPayment, 2500)) {
+        await this.tap(this.bkashPayment);
+        await this.show('bKash payment selected');
+        return;
+      }
+      await this.scroll('up', 0.4);
+    }
+    throw new Error('bKash payment option not found');
   }
 
   async selectSurjoPay() {

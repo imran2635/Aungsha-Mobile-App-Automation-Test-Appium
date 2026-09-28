@@ -3,9 +3,9 @@ const DriverManager = require('../core/DriverManager');
 const BuyFlowComponent = require('../components/BuyFlowComponent');
 
 /**
- * TC-BUY-01 — Cloud 9 buy via mBANKING (POM + OOP component).
+ * TC-BUY-02 — Cloud 9 buy via bKash (POM + OOP component).
  */
-describe('Aungsha Buy Flow — mBANKING', () => {
+describe('Aungsha Buy Flow — bKash', () => {
   /** @type {BuyFlowComponent} */
   let buy;
 
@@ -14,14 +14,15 @@ describe('Aungsha Buy Flow — mBANKING', () => {
     buy = new BuyFlowComponent(browser);
   });
 
-  it('should buy Cloud 9 via mBANKING', async () => {
+  it('should buy Cloud 9 via bKash', async () => {
     const { email, password } = appConfig.getCredentials();
-    const mbanking = appConfig.getMBankingCredentials();
+    const bkash = appConfig.getBkashCredentials();
     expect(email).toBeTruthy();
     expect(password).toBeTruthy();
-    expect(mbanking.number).toBeTruthy();
-    expect(mbanking.pin).toBeTruthy();
+    expect(bkash.number).toBeTruthy();
+    expect(bkash.otp).toBeTruthy();
+    expect(bkash.pin).toBeTruthy();
 
-    await buy.execute('mbanking');
+    await buy.execute('bkash');
   });
 });
