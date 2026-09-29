@@ -2,86 +2,106 @@
 
 ## Repo root
 
-`E:\Aungsha-Mobile-App-Automation-Test` (also pushed to GitHub as `imran2635-Aungsha-Mobile-App-Automation-Test-Appium`)
+`E:\Aungsha-Mobile-App-Automation-Test` (GitHub: `imran2635-Aungsha-Mobile-App-Automation-Test-Appium`)
 
 ## Source tree (automation)
 
 ```
 src/
-  config/AppConfig.js          # EMAIL/PASSWORD, MBANKING_*, caps, getMBankingCredentials()
+  config/AppConfig.js          # EMAIL/PASSWORD, MBANKING_*, BKASH_*, WITHDRAW_*, caps
   core/DriverManager.js        # setDriver, launchApp, terminateApp, takeScreenshot
+  core/SessionFactory.js       # createStandalone()
+  components/
+    BuyFlowComponent.js        # login → Cloud9 → checkout → docs; session recover
+    WithdrawFlowComponent.js   # optional buy → Fund → Withdraw; recover + retry
   pages/
     BasePage.js                # show, findFirst, tap, tapAt, scroll, type, isVisible
-    LoginPage.js               # login (force logout demo), ensureLoggedIn (soft)
-    HomePage.js                # waitUntilLoaded, isLoggedIn
-    MarketplacePage.js         # openBuyShares, openCloud9Inani (skip h>900 cards)
-    ProjectBuyPage.js          # tapBuy, confirmPurchase, selectOthersPayment, card sandbox
-    PaymentGatewayPage.js      # completeMBankingPayment (WEBVIEW)
+    LoginPage.js               # login, ensureLoggedIn
+    HomePage.js                # goHome, openFund, openFundThenWithdraw, waitUntilLoaded
+    MarketplacePage.js         # openBuyShares, openCloud9Inani
+    ProjectBuyPage.js          # tapBuy, confirmPurchase, wallet, Others/SurjoPay/bKash
+    PaymentGatewayPage.js      # mBANKING + forced bKash WEBVIEW
     ReceiptPage.js             # waitForSuccess, captureReceiptAndCertificate
+    WithdrawPage.js            # bKash method, amount, Submit Withdrawal
   tests/
-    login-flow.test.js         # TC-AUTH-01 (canonical)
-    buy-flow.test.js           # TC-BUY-01 (canonical)
-    login.test.js              # alias → login-flow.test.js
-    project-buy-flow.js        # alias → buy-flow.test.js
+    login-flow.test.js
+    buy-flow.test.js
+    buy-bkash.test.js
 scripts/
-  project-buy-flow.js          # legacy monolithic buy (test:buy:script)
-  explore-*.js, fill-*.js, dump-*.js, download-receipt-cert.js, inspect-device.js
-apps/
-  *.apk                        # gitignored; local only
-  locators/                    # dumps / login-locators.json
-  downloads/                   # receipt.png, certificate.png (gitignored)
-FLOW_DOCUMENTATION.md          # flow/test design source of truth
-wdio.conf.js                   # specs: ./src/tests/**/*.test.js
+  withdrawal-flow.js           # Fund → Withdraw CLI
+  project-buy-bkash.js
+  fund-balance-project-buy-surjoypay.js
+  fund-balance-project-buy-bkash.js
+  download-receipt-cert.js
+  run-pom-buy.js / run-with-banner.js
+  tools/                       # _ui-labels.js, inspect-device.js
+  legacy/                      # explore/dump/fill helpers
+artifacts/                     # screenshots + logs (gitignored)
+apps/downloads/                # receipt.png, dumps (gitignored)
+.cursor/skills/                # compet + appium-* skills
+FLOW_DOCUMENTATION.md
+wdio.conf.js
 .env                           # secrets — never commit
-.env.example                   # EMAIL, PASSWORD, MBANKING_*, STEP_PAUSE_MS, DEVICE_UDID
 ```
 
 ## package.json scripts
 
 | Script | Meaning |
 |--------|---------|
-| `appium` | Appium `127.0.0.1:4723` relaxed-security CORS |
-| `test:login` | WDIO `login-flow.test.js` |
-| `test:buy` | WDIO `buy-flow.test.js` (POM) |
-| `test:buy:wdio` | same as test:buy |
-| `test:buy:script` | node legacy `scripts/project-buy-flow.js` |
-| `inspect:device` | package/activity helper |
+| `appium` | Appium `127.0.0.1:4723` |
+| `test:login` | WDIO login |
+| `test:buy` | WDIO buy POM |
+| `test:buy:bkash` | WDIO bKash |
+| `test:buy:script` | legacy buy script |
+| `test:buy:bkash:script` | bKash buy CLI |
+| `test:buy:surjoypay:script` | wallet + SurjoPay |
+| `test:buy:bkash-fund:script` | wallet + bKash |
+| `test:withdraw:script` | withdraw flow |
+| `test:receipt` | receipt/cert |
+| `inspect:device` | package helper |
 
 ## Env keys (names only)
 
-`APP_PACKAGE`, `APP_ACTIVITY`, `EMAIL`, `PASSWORD`, `APPIUM_HOST`, `APPIUM_PORT`, `DEVICE_UDID`, `APP_PATH`, `MBANKING_NUMBER`, `MBANKING_PIN`, `STEP_PAUSE_MS`, `FORCE_APP_INSTALL`, `START_APPIUM`, `HIDE_ANIMATION`
+`APP_PACKAGE`, `APP_ACTIVITY`, `EMAIL`, `PASSWORD`, `APPIUM_HOST`, `APPIUM_PORT`, `DEVICE_UDID`, `APP_PATH`, `MBANKING_NUMBER`, `MBANKING_PIN`, `BKASH_NUMBER`, `BKASH_OTP`, `BKASH_PIN`, `WALLET_AMOUNT`, `RESUME_PURCHASE`, `BUY_METHOD`, `SKIP_BUY`, `SKIP_RECEIPT`, `WITHDRAW_BKASH_NUMBER`, `WITHDRAW_AMOUNT`, `STEP_PAUSE_MS`, `FORCE_APP_INSTALL`, `START_APPIUM`, `HIDE_ANIMATION`
 
-Sandbox mBANKING used in successful runs (also in flow docs): mobile `01772559986`, pin `1234` — treat as sandbox-only.
+Sandbox: mBANKING/withdraw `01772559986` pin `1234`; withdraw amount `500`.
+
+## Withdraw path (verified PASS)
+
+1. `SKIP_BUY=1` (or full buy then recover)
+2. Home tab → Fund / wallet (`Available to Withdraw`)
+3. Tap clickable **ImageView** `Withdraw` CTA (not title / not only bottom nav)
+4. bKash `01772559986` → Continue to Amount → `500` → Submit Withdrawal
+5. Forced coords fallbacks exist in `HomePage` / `WithdrawPage`
 
 ## Buy path (verified)
 
-1. Force app foreground (`terminate` + `launch`)
-2. Soft login if needed
-3. Buy Shares tab (not project card text)
-4. Open Cloud 9 (Inani) card — avoid oversized parent nodes (height > 900)
-5. Buy shares now → Continue → Others (VISA) → Continue
-6. WEBVIEW ShurjoPay → `#mbanking_style` → `#input-38` mobile / `#input-41` pin → Pay Now
-7. Native success → View Receipt + View Share Certificate → screenshots
+1. terminate + launch → soft login
+2. Buy Shares → Cloud 9 (Inani) — skip height > 900
+3. Continue → Others → SurjoPay WEBVIEW mBANKING **or** bKash WEBVIEW
+4. Native success → optional receipt/cert under `apps/downloads/`
+5. UIA2 often dies after WEBVIEW — recover before next UI steps
 
 ## Chat decisions timeline
 
-1. User asked to run emulator “koro” → only AVD `Aungsha_Emu` exists → started that.
-2. Asked where login/buy JS files are → listed `src/tests` + `scripts/project-buy-flow.js`.
-3. Asked to restore old files → no git then; files already on disk.
-4. Asked to use POM → refactored buy to page objects; rules: reuse, no dupes, SOLID, locators in pages, no hardcoded waits.
-5. Asked to add pages/tests → added `PaymentGatewayPage`, `ReceiptPage`, `login-flow.test.js`, `buy-flow.test.js`.
-6. Pushed to GitHub; removed `Co-authored-by: Cursor` so Contributors should not credit cursoragent (UI cache may lag; API already only imran2635).
+1. Emulator “koro” → AVD `Aungsha_Emu` only.
+2. POM refactor: locators in pages, SOLID, no dupes.
+3. Added PaymentGateway / Receipt pages + login/buy tests.
+4. bKash forced WEBVIEW fill; PIN WEBVIEW close = OK.
+5. Wallet credit on Purchase Details (SurjoPay PASS; bKash flaky).
+6. Withdraw: Home → Fund → CTA → bKash → 500 → Submit PASS (`EXIT=0`).
+7. Swagger helps API asserts, **not** UI locators — use dumps/Inspector.
+8. Skills pack under `.cursor/skills/`: compet, appium-mobile, pom, locators, emulator-adb, wdio-mocha, webview, session-recover, debug, env-credentials, flows-aungsha, skills-index.
 
 ## Coding preferences for future agents
 
-- Extend `BasePage` helpers instead of new one-off gesture helpers.
-- Buy orchestration lives in `buy-flow.test.js`; payment in `PaymentGatewayPage`; docs in `ReceiptPage`.
-- Do not revive spawnSync wrapper as primary buy path.
-- Update `FLOW_DOCUMENTATION.md` when npm scripts or page layout change.
-- Git: never force-push unless user asks; never commit `.env`; strip Cursor co-author trailers if tooling injects them.
+- Extend `BasePage`; orchestration in components; thin scripts.
+- After payment always plan for session recover.
+- Update this reference when npm scripts or major flows change.
+- Git: never force-push unless asked; never commit `.env`; no Cursor co-author.
 
 ## Local device notes
 
-- `adb devices` may show `emulator-5554` and physical `R83Y80R6PXY`.
-- Default `DEVICE_UDID=emulator-5554` in `.env` for automation.
-- Emulator binary: `%LOCALAPPDATA%\Android\Sdk\emulator\emulator.exe`
+- `adb devices`: `emulator-5554` and optionally physical tablet.
+- Default `DEVICE_UDID=emulator-5554`.
+- Emulator: `%LOCALAPPDATA%\Android\Sdk\emulator\emulator.exe -avd Aungsha_Emu`

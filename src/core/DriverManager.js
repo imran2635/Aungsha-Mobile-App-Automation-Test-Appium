@@ -1,4 +1,6 @@
 const appConfig = require('../config/AppConfig');
+const fs = require('fs');
+const path = require('path');
 
 /**
  * DriverManager — OOP wrapper around WebdriverIO browser/session lifecycle.
@@ -69,10 +71,12 @@ class DriverManager {
 
   async takeScreenshot(name = 'shot') {
     const driver = this.getDriver();
+    const dir = path.join(process.cwd(), 'artifacts', 'screenshots');
+    fs.mkdirSync(dir, { recursive: true });
     const safe = name.replace(/[^a-z0-9_-]/gi, '_');
-    const path = `./screenshots/${Date.now()}_${safe}.png`;
-    await driver.saveScreenshot(path);
-    return path;
+    const filePath = path.join(dir, `${Date.now()}_${safe}.png`);
+    await driver.saveScreenshot(filePath);
+    return filePath;
   }
 }
 

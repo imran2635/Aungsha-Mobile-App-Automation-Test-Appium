@@ -142,32 +142,39 @@ Aungsha-Mobile-App-Test/
 │   ├── config/
 │   │   └── AppConfig.js           ← caps, credentials, env
 │   ├── core/
-│   │   └── DriverManager.js       ← session / app launch
+│   │   ├── DriverManager.js       ← session / app launch
+│   │   └── SessionFactory.js
+│   ├── components/                ← flow orchestration
+│   │   ├── BuyFlowComponent.js
+│   │   └── WithdrawFlowComponent.js
 │   ├── pages/                     ← Page Object Model
 │   │   ├── BasePage.js
 │   │   ├── LoginPage.js
 │   │   ├── HomePage.js
 │   │   ├── MarketplacePage.js
 │   │   ├── ProjectBuyPage.js
-│   │   ├── PaymentGatewayPage.js  ← mBANKING WEBVIEW
-│   │   └── ReceiptPage.js         ← receipt / certificate
+│   │   ├── PaymentGatewayPage.js
+│   │   ├── ReceiptPage.js
+│   │   └── WithdrawPage.js
 │   └── tests/
 │       ├── login-flow.test.js     ← TC-AUTH-01 (POM)
-│       └── buy-flow.test.js       ← TC-BUY-01 (POM)
+│       ├── buy-flow.test.js       ← TC-BUY-01 (POM)
+│       └── buy-bkash.test.js
 │
-├── scripts/
-│   ├── project-buy-flow.js        ← legacy non-POM buy (npm run test:buy:script)
-│   ├── download-receipt-cert.js   ← receipt/cert only (if success UI open)
-│   ├── fill-login.js              ← standalone login helper
-│   └── explore-*.js               ← locator discovery helpers
+├── scripts/                       ← thin CLIs only
+│   ├── withdrawal-flow.js
+│   ├── project-buy-*.js / fund-balance-*.js
+│   ├── download-receipt-cert.js
+│   ├── run-pom-buy.js / run-with-banner.js
+│   ├── tools/                     ← inspect-device, _ui-labels
+│   └── legacy/                    ← explore/dump/fill helpers
 │
+├── artifacts/                     ← screenshots + logs (gitignored)
 ├── apps/
-│   ├── aungsha-tablet-staging.apk ← pulled staging/tablet build (local)
-│   ├── locators/                  ← UI XML / HTML dumps
-│   └── downloads/                 ← receipt.png, certificate.png
-│
-├── buy-flow-run.log
-└── login-run.log
+│   ├── locators/
+│   └── downloads/
+├── .cursor/skills/
+└── wdio.conf.js / package.json / .env
 ```
 
 ### 2.1 npm scripts
@@ -657,8 +664,8 @@ apps/*.apk
 apps/downloads/
 *.log
 screenshots/
+artifacts/
 ```
-
 ---
 
 ## 19. Document control

@@ -20,7 +20,7 @@ const path = require('path');
     logLevel: 'error',
   });
 
-  const out = path.join(__dirname, '..', 'apps', 'locators');
+  const out = path.join(__dirname, '..', '..', 'apps', 'locators');
   fs.mkdirSync(out, { recursive: true });
 
   const dump = async (name) => {

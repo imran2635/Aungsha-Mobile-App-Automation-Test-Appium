@@ -1,8 +1,8 @@
 const { remote } = require('webdriverio');
 const fs = require('fs');
 const path = require('path');
-require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
-const appConfig = require('../src/config/AppConfig');
+require('dotenv').config({ path: path.join(__dirname, '..', '..', '.env') });
+const appConfig = require('../../src/config/AppConfig');
 
 function extractLocators(xml) {
   const rows = [];
@@ -82,7 +82,7 @@ function extractLocators(xml) {
     logLevel: 'warn',
   });
 
-  const outDir = path.join(__dirname, '..', 'apps', 'locators');
+  const outDir = path.join(__dirname, '..', '..', 'apps', 'locators');
   fs.mkdirSync(outDir, { recursive: true });
 
   try {

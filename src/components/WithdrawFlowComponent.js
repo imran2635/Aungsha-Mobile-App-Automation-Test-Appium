@@ -33,6 +33,24 @@ class WithdrawFlowComponent {
    * After buy/receipt, UiAutomator2 often dies — recreate once.
    * @private
    */
+  async _recoverSession() {
+    console.log('[WithdrawFlow] Recovering Appium session…');
+    try {
+      await this.driver.deleteSession();
+    } catch {
+      // already dead
+    }
+    await new Promise((r) => setTimeout(r, 3000));
+    const fresh = await SessionFactory.createStandalone();
+    this._bind(fresh);
+    try {
+      await this.driver.activateApp(appConfig.appPackage);
+    } catch {
+      await DriverManager.launchApp();
+    }
+    await this.driver.pause(4000);
+  }
+
   /** @private */
   async _openWithdrawWithRetry() {
     for (let attempt = 0; attempt < 3; attempt += 1) {
@@ -53,24 +71,6 @@ class WithdrawFlowComponent {
         throw err;
       }
     }
-  }
-
-  async _recoverSession() {
-    console.log('[WithdrawFlow] Recovering Appium session…');
-    try {
-      await this.driver.deleteSession();
-    } catch {
-      // already dead
-    }
-    await new Promise((r) => setTimeout(r, 3000));
-    const fresh = await SessionFactory.createStandalone();
-    this._bind(fresh);
-    try {
-      await this.driver.activateApp(appConfig.appPackage);
-    } catch {
-      await DriverManager.launchApp();
-    }
-    await this.driver.pause(4000);
   }
 
   /**

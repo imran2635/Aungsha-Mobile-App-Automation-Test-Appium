@@ -4,6 +4,10 @@ node_modules/
 allure-report/
 test-results/
 screenshots/
+artifacts/screenshots/*
+!artifacts/screenshots/.gitkeep
+artifacts/logs/*
+!artifacts/logs/.gitkeep
 *.log
 .DS_Store
 .idea/

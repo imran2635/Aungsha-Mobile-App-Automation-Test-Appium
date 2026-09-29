@@ -72,10 +72,6 @@ class WithdrawPage extends BasePage {
   }
 
   /**
-   * Select bKash payout method (preferred number).
-   * @param {string} [number]
-   */
-  /**
    * @param {string} [number]
    * @returns {Promise<boolean>}
    */

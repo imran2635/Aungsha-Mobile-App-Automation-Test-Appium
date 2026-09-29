@@ -21,7 +21,7 @@ const path = require('path');
     logLevel: 'error',
   });
 
-  const out = path.join(__dirname, '..', 'apps', 'locators');
+  const out = path.join(__dirname, '..', '..', 'apps', 'locators');
   const dump = async (name) => {
     const xml = await driver.getPageSource();
     fs.writeFileSync(path.join(out, `${name}.xml`), xml);

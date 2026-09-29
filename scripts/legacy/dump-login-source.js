@@ -1,8 +1,8 @@
 const { remote } = require('webdriverio');
 const fs = require('fs');
 const path = require('path');
-require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
-const appConfig = require('../src/config/AppConfig');
+require('dotenv').config({ path: path.join(__dirname, '..', '..', '.env') });
+const appConfig = require('../../src/config/AppConfig');
 
 (async () => {
   const driver = await remote({
@@ -36,7 +36,7 @@ const appConfig = require('../src/config/AppConfig');
 
     await driver.pause(2500);
     const src = await driver.getPageSource();
-    const out = path.join(__dirname, '..', 'apps', 'source-login.xml');
+    const out = path.join(__dirname, '..', '..', 'apps', 'source-login.xml');
     fs.writeFileSync(out, src);
     console.log('Wrote', out, 'bytes', src.length);
 

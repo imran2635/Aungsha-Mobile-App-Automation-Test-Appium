@@ -2,10 +2,10 @@
 name: compet
 description: >-
   Loads full Aungsha Mobile App Automation context (codebase map, POM rules,
-  login/buy flows, run commands, env keys, GitHub/git preferences) from prior
-  work with the user. Use when the user says /compet, compet, continues Aungsha
-  Appium/WebdriverIO work on another machine/chat, or asks to restore project
-  context / "sob data".
+  login/buy/withdraw flows, run commands, env keys, GitHub/git preferences)
+  from prior work with the user. Use when the user says /compet, compet,
+  continues Aungsha Appium/WebdriverIO work on another machine/chat, or asks
+  to restore project context / "sob data".
 ---
 
 # /compet — Aungsha automation context pack
@@ -17,9 +17,10 @@ ami tomar sathe ja kotha boltese and full codebase jeno pore kothao run korle so
 ## When invoked
 
 1. Read [reference.md](reference.md) immediately.
-2. Prefer existing POM pages/tests over new scripts.
-3. Answer and code as if this chat’s decisions and repo layout are already known.
-4. Do not re-ask for stack, flows, or file locations already listed below / in reference.
+2. Also treat sibling skills as available: `appium-skills-index`, `appium-mobile`, `appium-pom`, `appium-locators`, `appium-emulator-adb`, `appium-wdio-mocha`, `appium-webview`, `appium-session-recover`, `appium-debug`, `appium-env-credentials`, `appium-flows-aungsha`.
+3. Prefer existing POM pages/tests/components over new scripts.
+4. Answer and code as if this chat’s decisions and repo layout are already known.
+5. Do not re-ask for stack, flows, or file locations already listed below / in reference.
 
 ## Hard rules (from this project’s chats)
 
@@ -45,9 +46,10 @@ npm.cmd run appium
 & "$env:LOCALAPPDATA\Android\Sdk\emulator\emulator.exe" -avd Aungsha_Emu
 npm.cmd run test:login
 npm.cmd run test:buy
+npm.cmd run test:withdraw:script
+# Fund → Withdraw only:
+$env:SKIP_BUY="1"; $env:WITHDRAW_AMOUNT="500"; node .\scripts\withdrawal-flow.js
 ```
-
-Legacy non-POM: `npm.cmd run test:buy:script`
 
 ## Key paths
 
@@ -55,16 +57,24 @@ Legacy non-POM: `npm.cmd run test:buy:script`
 |------|------|
 | Login test | `src/tests/login-flow.test.js` |
 | Buy test | `src/tests/buy-flow.test.js` |
+| Buy bKash test | `src/tests/buy-bkash.test.js` |
+| Buy component | `src/components/BuyFlowComponent.js` |
+| Withdraw component | `src/components/WithdrawFlowComponent.js` |
+| Withdraw CLI | `scripts/withdrawal-flow.js` |
 | Pages | `src/pages/*.js` |
 | Config | `src/config/AppConfig.js` |
 | Driver | `src/core/DriverManager.js` |
 | Docs | `FLOW_DOCUMENTATION.md` |
+| Skills | `.cursor/skills/` |
 | GitHub | `https://github.com/imran2635/imran2635-Aungsha-Mobile-App-Automation-Test-Appium` |
 
 ## Flows to know
 
-- **TC-AUTH-01**: `LoginPage.login` → `HomePage.waitUntilLoaded`
-- **TC-BUY-01**: `ensureLoggedIn` → Buy Shares → Cloud 9 → Continue → Others → mBANKING WEBVIEW → receipt/certificate screenshots under `apps/downloads/`
+- **TC-AUTH-01**: `LoginPage.login` / `ensureLoggedIn` → `HomePage.waitUntilLoaded`
+- **TC-BUY-01**: Marketplace → Cloud 9 → SurjoPay mBANKING → receipt/cert
+- **bKash buy**: Choose bKash → WEBVIEW WALLET/OTP/PIN → success
+- **Wallet + SurjoPay**: `WALLET_AMOUNT` + `RESUME_PURCHASE` optional
+- **Withdraw**: Home → **Fund** → Withdraw CTA → bKash → Amount → Submit (`SKIP_BUY=1` OK)
 
 ## More detail
 

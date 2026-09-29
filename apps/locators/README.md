@@ -25,5 +25,5 @@ Note: Profile CTA is **Sign In** (capital I). Form submit is **Sign in** (lowerc
 
 ## Re-extract
 ```powershell
-node .\scripts\extract-locators.js
+node .\scripts\legacy\extract-locators.js
 ```

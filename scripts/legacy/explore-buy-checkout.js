@@ -20,38 +20,41 @@ const path = require('path');
     logLevel: 'error',
   });
 
-  const out = path.join(__dirname, '..', 'apps', 'locators');
+  const out = path.join(__dirname, '..', '..', 'apps', 'locators');
   const dump = async (name) => {
     const xml = await driver.getPageSource();
     fs.writeFileSync(path.join(out, `${name}.xml`), xml);
     const labels = [...xml.matchAll(/content-desc="([^"]+)"/g)].map((m) => m[1]);
-    console.log(`\n=== ${name} ===`);
+    const texts = [...xml.matchAll(/text="([^"]+)"/g)].map((m) => m[1]);
+    console.log(`\n=== ${name} DESC ===`);
     console.log([...new Set(labels)].filter(Boolean).join('\n'));
+    console.log(`=== ${name} TEXT ===`);
+    console.log([...new Set(texts)].filter(Boolean).slice(0, 60).join('\n'));
   };
 
-  const tapDesc = async (text) => {
+  const tapContains = async (text) => {
     const el = await driver.$(`//*[contains(@content-desc,"${text}")]`);
     await el.waitForExist({ timeout: 20000 });
     const loc = await el.getLocation();
     const size = await el.getSize();
     await driver.execute('mobile: clickGesture', {
       x: Math.round(loc.x + size.width / 2),
-      y: Math.round(loc.y + Math.min(size.height / 2, size.height * 0.7)),
+      y: Math.round(loc.y + size.height / 2),
     });
   };
 
   try {
+    // Assume already on detail from previous, or navigate
     await driver.activateApp('com.aungsha.app');
     await driver.pause(1000);
     let src = await driver.getPageSource();
-
-    if (!/Purchase Details/i.test(src)) {
+    if (!/Buy shares now/i.test(src)) {
       await (await driver.$('~Buy Shares')).click();
-      await driver.pause(1200);
+      await driver.pause(1500);
       await driver.execute('mobile: scrollGesture', {
         left: 100, top: 700, width: 800, height: 1000, direction: 'up', percent: 0.45,
       });
-      await driver.pause(600);
+      await driver.pause(800);
       const card = await driver.$('//*[contains(@content-desc,"Cloud 9 (Inani)")]');
       const loc = await card.getLocation();
       const size = await card.getSize();
@@ -59,44 +62,27 @@ const path = require('path');
         x: Math.round(loc.x + size.width / 2),
         y: Math.round(loc.y + size.height * 0.85),
       });
-      await driver.pause(2000);
-      await tapDesc('Buy shares now');
-      await driver.pause(2000);
+      await driver.pause(2500);
     }
 
-    await tapDesc('Continue');
-    console.log('Clicked Continue');
+    await dump('buy-30-detail');
+    await tapContains('Buy shares now');
+    console.log('Clicked Buy shares now');
     await driver.pause(3000);
-    await dump('buy-40-after-continue');
+    await dump('buy-31-purchase');
 
-    for (let i = 0; i < 5; i += 1) {
+    for (let i = 0; i < 4; i += 1) {
       await driver.execute('mobile: scrollGesture', {
-        left: 100, top: 500, width: 800, height: 1100, direction: 'up', percent: 0.5,
+        left: 100, top: 500, width: 800, height: 1100, direction: 'up', percent: 0.55,
       });
-      await driver.pause(500);
+      await driver.pause(700);
     }
-    await dump('buy-41-scrolled');
+    await dump('buy-32-purchase-scrolled');
 
-    src = await driver.getPageSource();
-    for (const label of ['Sandbox', 'Surjo', 'Shurjo', 'Pay', 'Wallet', 'bKash', 'Nagad', 'Card', 'Confirm', 'Continue']) {
-      if (new RegExp(label, 'i').test(src)) console.log('HAS:', label);
-    }
-
-    // Click payment related if found
-    for (const label of ['SurjoPay', 'ShurjoPay', 'Sandbox', 'Continue', 'Confirm & Pay', 'Pay Now', 'Confirm']) {
-      const el = await driver.$(`//*[contains(@content-desc,"${label}")]`);
-      if (await el.isExisting()) {
-        console.log('Clicking', label);
-        const loc = await el.getLocation();
-        const size = await el.getSize();
-        await driver.execute('mobile: clickGesture', {
-          x: Math.round(loc.x + size.width / 2),
-          y: Math.round(loc.y + size.height / 2),
-        });
-        await driver.pause(3000);
-        await dump(`buy-42-${label.replace(/\s|&/g, '-')}`);
-        break;
-      }
+    // Try common next actions
+    for (const label of ['Sandbox', 'SurjoPay', 'ShurjoPay', 'Continue', 'Confirm', 'Pay', 'Checkout', 'Wallet']) {
+      const el = await driver.$(`//*[contains(@content-desc,"${label}") or contains(@text,"${label}")]`);
+      if (await el.isExisting()) console.log('VISIBLE:', label);
     }
   } finally {
     await driver.deleteSession();
