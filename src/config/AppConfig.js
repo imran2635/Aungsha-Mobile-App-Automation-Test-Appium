@@ -37,6 +37,13 @@ class AppConfig {
     };
   }
 
+  getWithdrawalCredentials() {
+    return {
+      number: process.env.WITHDRAW_BKASH_NUMBER || '01772559986',
+      amount: process.env.WITHDRAW_AMOUNT || '500',
+    };
+  }
+
   getCapabilities() {
     const caps = {
       platformName: 'Android',

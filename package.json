@@ -13,6 +13,7 @@
     "test:buy:bkash:script": "node ./scripts/run-with-banner.js ./scripts/project-buy-bkash.js \"Buy Flow bKash\"",
     "test:buy:surjoypay:script": "node ./scripts/run-with-banner.js ./scripts/fund-balance-project-buy-surjoypay.js \"Buy Flow SurjoPay\"",
     "test:buy:bkash-fund:script": "node ./scripts/run-with-banner.js ./scripts/fund-balance-project-buy-bkash.js \"Buy Flow Wallet + bKash\"",
+    "test:withdraw:script": "node ./scripts/run-with-banner.js ./scripts/withdrawal-flow.js \"Withdrawal Flow\"",
     "test:receipt": "node ./scripts/run-with-banner.js ./scripts/download-receipt-cert.js \"Receipt + Certificate\"",
     "inspect:device": "node ./scripts/inspect-device.js"
   },
