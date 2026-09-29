@@ -41,9 +41,9 @@ exports.config = {
       : [],
   before: async () => {
     const fs = require('fs');
-    if (!fs.existsSync('./screenshots')) {
-      fs.mkdirSync('./screenshots');
-    }
+    const path = require('path');
+    const dir = path.join(process.cwd(), 'artifacts', 'screenshots');
+    fs.mkdirSync(dir, { recursive: true });
   },
   onComplete(exitCode) {
     const line = '='.repeat(56);

@@ -12,7 +12,8 @@ src/
   core/DriverManager.js        # setDriver, launchApp, terminateApp, takeScreenshot
   core/SessionFactory.js       # createStandalone()
   components/
-    BuyFlowComponent.js        # login → Cloud9 → checkout → docs; session recover
+    BaseFlowComponent.js       # shared session recover / bind
+    BuyFlowComponent.js        # login → Cloud9 → checkout → docs
     WithdrawFlowComponent.js   # optional buy → Fund → Withdraw; recover + retry
   pages/
     BasePage.js                # show, findFirst, tap, tapAt, scroll, type, isVisible

@@ -19,6 +19,24 @@ class SessionFactory {
       logLevel: 'warn',
     });
   }
+
+  /**
+   * Best-effort session teardown for CLI runners.
+   * @param {WebdriverIO.Browser} driver
+   */
+  static async quitQuietly(driver) {
+    if (!driver) return;
+    try {
+      await driver.switchContext('NATIVE_APP');
+    } catch {
+      // ignore
+    }
+    try {
+      await driver.deleteSession();
+    } catch {
+      // ignore
+    }
+  }
 }
 
 module.exports = SessionFactory;

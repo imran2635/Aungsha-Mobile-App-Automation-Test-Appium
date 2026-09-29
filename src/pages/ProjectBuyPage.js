@@ -34,6 +34,12 @@ class ProjectBuyPage extends BasePage {
       '~bKash',
     ];
 
+    this.paymentChooserMarkers = [
+      '//*[contains(@content-desc,"Choose payment")]',
+      '//*[contains(@content-desc,"bKash")]',
+      '//*[contains(@content-desc,"Others")]',
+    ];
+
     this.sandboxToggles = [
       '~Sandbox',
       '//*[contains(@content-desc,"Sandbox") or contains(@content-desc,"sandbox")]',
@@ -133,6 +139,13 @@ class ProjectBuyPage extends BasePage {
   /**
    * Choose payment: Others (VISA + more) — SurjoPay / mBANKING path.
    */
+  async waitForPaymentChooser(timeout = 30000) {
+    await this.driver.waitUntil(async () => this.isVisible(this.paymentChooserMarkers, 2000), {
+      timeout,
+      timeoutMsg: 'Payment method screen did not appear',
+    });
+  }
+
   async selectOthersPayment() {
     if (await this.isVisible(this.othersPayment, 8000)) {
       await this.tap(this.othersPayment);

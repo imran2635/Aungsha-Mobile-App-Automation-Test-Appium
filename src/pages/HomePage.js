@@ -156,15 +156,15 @@ class HomePage extends BasePage {
     }
   }
 
-  /** Home → Fund tile/tab → Withdraw */
+  /** Home → Fund → Withdraw CTA (preferred entry). */
   async openFundThenWithdraw() {
     await this.openFund();
     await this.tapWithdrawOnFundScreen();
   }
 
-  /** @deprecated prefer openFundThenWithdraw */
+  /** @deprecated use openFundThenWithdraw — kept for older call sites */
   async openWithdraw() {
-    await this.openFundThenWithdraw();
+    return this.openFundThenWithdraw();
   }
 
   /**
