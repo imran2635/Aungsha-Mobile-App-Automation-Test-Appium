@@ -1,5 +1,5 @@
-const appConfig = require('../config/AppConfig');
-const DriverManager = require('../core/DriverManager');
+const appConfig = require('./AppConfig');
+const DriverManager = require('./DriverManager');
 const BaseFlowComponent = require('./BaseFlowComponent');
 const LoginPage = require('../pages/LoginPage');
 const HomePage = require('../pages/HomePage');

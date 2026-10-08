@@ -135,34 +135,37 @@ This repo is **mobile UI E2E automation**, not a backend API test pack.
 ## 2. Repository structure
 
 ```text
-Aungsha-Mobile-App-Test/
+Aungsha-Mobile-App-Automation-Test/
 ├── FLOW_DOCUMENTATION.md          ← this file
 ├── package.json                   ← npm scripts (test:login, test:buy, appium)
 ├── wdio.conf.js                   ← WebdriverIO config
 ├── .env                           ← secrets/config (do not commit real prod secrets)
 │
-├── src/
-│   ├── config/
-│   │   └── AppConfig.js           ← caps, credentials, env
-│   ├── core/
-│   │   ├── DriverManager.js       ← session / app launch
-│   │   └── SessionFactory.js
-│   ├── components/                ← flow orchestration
-│   │   ├── BuyFlowComponent.js
-│   │   └── WithdrawFlowComponent.js
-│   ├── pages/                     ← Page Object Model
-│   │   ├── BasePage.js
-│   │   ├── LoginPage.js
-│   │   ├── HomePage.js
-│   │   ├── MarketplacePage.js
-│   │   ├── ProjectBuyPage.js
-│   │   ├── PaymentGatewayPage.js
-│   │   ├── ReceiptPage.js
-│   │   └── WithdrawPage.js
-│   └── tests/
-│       ├── login-flow.test.js     ← TC-AUTH-01 (POM)
-│       ├── buy-flow.test.js       ← TC-BUY-01 (POM)
-│       └── buy-bkash.test.js
+├── pages/                         ← Page Object Model (like Playwright pages/)
+│   ├── BasePage.js
+│   ├── LoginPage.js
+│   ├── HomePage.js
+│   ├── MarketplacePage.js
+│   ├── ProjectBuyPage.js
+│   ├── PaymentGatewayPage.js
+│   ├── ReceiptPage.js
+│   └── WithdrawPage.js
+│
+├── services/                      ← flows + driver + config (like Playwright services/)
+│   ├── AppConfig.js
+│   ├── DriverManager.js
+│   ├── SessionFactory.js
+│   ├── Checkpoint.js
+│   ├── BuyFlowComponent.js
+│   ├── WithdrawFlowComponent.js
+│   ├── BaseFlowComponent.js
+│   └── runStandaloneFlow.js
+│
+├── tests/                         ← WDIO / Mocha specs
+│   ├── login-flow.test.js         ← TC-AUTH-01
+│   ├── buy-flow.test.js           ← TC-BUY-01
+│   ├── buy-bkash.test.js
+│   └── helpers/describeBuyFlow.js
 │
 ├── scripts/                       ← thin CLIs only
 │   ├── withdrawal-flow.js
@@ -198,11 +201,11 @@ Aungsha-Mobile-App-Test/
 
 ```text
 ┌─────────────────────────────────────────────────────────┐
-│  Mocha / WDIO specs   (src/tests/*.js)                  │
+│  Mocha / WDIO specs   (tests/*.js)                      │
 └───────────────────────────┬─────────────────────────────┘
                             │
 ┌───────────────────────────▼─────────────────────────────┐
-│  Page Objects           (src/pages/*)                   │
+│  Page Objects           (pages/*)                       │
 │  BasePage → LoginPage / HomePage / Marketplace / Buy    │
 └───────────────────────────┬─────────────────────────────┘
                             │
@@ -514,7 +517,7 @@ flowchart TD
 | **ID** | TC-AUTH-01 |
 | **Priority** | P0 |
 | **Type** | Positive |
-| **Spec** | `src/tests/login.test.js` |
+| **Spec** | `tests/login-flow.test.js` |
 | **Precondition** | App installed; emulator up; Appium up; valid `.env` credentials |
 | **Steps** | Launch → (Sign out if needed) → Profile → Sign In → Email → Password → Sign in |
 | **Expected** | Home shell visible; `isLoggedIn() === true` |
@@ -527,7 +530,7 @@ flowchart TD
 | **ID** | TC-BUY-01 |
 | **Priority** | P0 |
 | **Type** | Positive E2E |
-| **Spec / script** | `src/tests/project-buy-flow.js` → `scripts/project-buy-flow.js` |
+| **Spec / script** | `tests/buy-flow.test.js` → `scripts/project-buy-flow.js` |
 | **Precondition** | Logged-in session (or home shell); Cloud 9 buyable; sandbox payment on |
 | **Steps** | Buy Shares → Cloud 9 → Buy shares now → Continue → Others → Continue → mBANKING → Pay → Receipt + Certificate |
 | **Expected** | Console: `BUY_FLOW_OK`, `RECEIPT_CERT_OK`; exit code `0` |
@@ -713,7 +716,7 @@ Ask engineering for:
 ## 18. Extending the suite
 
 1. Add locators to the correct **page object**
-2. Add a Mocha case under `src/tests/` **or** a script under `scripts/`
+2. Add a Mocha case under `tests/` **or** a script under `scripts/`
 3. Wire an `npm` script in `package.json`
 4. Update **this document**: endpoint count, case table, data matrix
 5. Keep secrets in `.env` (add `.env.example` without real passwords for GitHub)

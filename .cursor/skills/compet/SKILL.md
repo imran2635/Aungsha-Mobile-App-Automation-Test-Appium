@@ -55,15 +55,15 @@ $env:SKIP_BUY="1"; $env:WITHDRAW_AMOUNT="500"; node .\scripts\withdrawal-flow.js
 
 | Role | Path |
 |------|------|
-| Login test | `src/tests/login-flow.test.js` |
-| Buy test | `src/tests/buy-flow.test.js` |
-| Buy bKash test | `src/tests/buy-bkash.test.js` |
-| Buy component | `src/components/BuyFlowComponent.js` |
-| Withdraw component | `src/components/WithdrawFlowComponent.js` |
+| Login test | `tests/login-flow.test.js` |
+| Buy test | `tests/buy-flow.test.js` |
+| Buy bKash test | `tests/buy-bkash.test.js` |
+| Buy component | `services/BuyFlowComponent.js` |
+| Withdraw component | `services/WithdrawFlowComponent.js` |
 | Withdraw CLI | `scripts/withdrawal-flow.js` |
-| Pages | `src/pages/*.js` |
-| Config | `src/config/AppConfig.js` |
-| Driver | `src/core/DriverManager.js` |
+| Pages | `pages/*.js` |
+| Config | `services/AppConfig.js` |
+| Driver | `services/DriverManager.js` |
 | Docs | `FLOW_DOCUMENTATION.md` |
 | Skills | `.cursor/skills/` |
 | GitHub | `https://github.com/imran2635/imran2635-Aungsha-Mobile-App-Automation-Test-Appium` |

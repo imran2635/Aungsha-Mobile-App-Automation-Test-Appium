@@ -1,7 +1,7 @@
-const appConfig = require('../config/AppConfig');
-const DriverManager = require('../core/DriverManager');
-const checkpoint = require('../core/Checkpoint');
-const BuyFlowComponent = require('../components/BuyFlowComponent');
+const appConfig = require('../../services/AppConfig');
+const DriverManager = require('../../services/DriverManager');
+const checkpoint = require('../../services/Checkpoint');
+const BuyFlowComponent = require('../../services/BuyFlowComponent');
 
 /**
  * Shared WDIO buy-spec helper — credentials + execute with checkpoints.

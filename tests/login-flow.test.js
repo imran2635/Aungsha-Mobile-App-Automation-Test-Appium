@@ -1,6 +1,6 @@
-const appConfig = require('../config/AppConfig');
-const DriverManager = require('../core/DriverManager');
-const checkpoint = require('../core/Checkpoint');
+const appConfig = require('../services/AppConfig');
+const DriverManager = require('../services/DriverManager');
+const checkpoint = require('../services/Checkpoint');
 const LoginPage = require('../pages/LoginPage');
 const HomePage = require('../pages/HomePage');
 

@@ -1,14 +1,14 @@
 const path = require('path');
 require('dotenv').config({ path: path.join(__dirname, '.env') });
 
-const appConfig = require('./src/config/AppConfig');
+const appConfig = require('./services/AppConfig');
 
 exports.config = {
   runner: 'local',
   hostname: appConfig.appiumHost,
   port: appConfig.appiumPort,
   path: '/',
-  specs: ['./src/tests/**/*.test.js'],
+  specs: ['./tests/**/*.test.js'],
   exclude: [],
   maxInstances: 1,
   capabilities: [appConfig.getCapabilities()],

@@ -1,4 +1,4 @@
-const checkpoint = require('../core/Checkpoint');
+const checkpoint = require('../services/Checkpoint');
 
 /**
  * Base Page Object — shared waiting, tapping, typing helpers.

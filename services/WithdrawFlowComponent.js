@@ -1,4 +1,4 @@
-const appConfig = require('../config/AppConfig');
+const appConfig = require('./AppConfig');
 const BaseFlowComponent = require('./BaseFlowComponent');
 const BuyFlowComponent = require('./BuyFlowComponent');
 const HomePage = require('../pages/HomePage');

@@ -12,7 +12,7 @@ description: >-
 
 | Use case | Entry |
 |----------|--------|
-| Canonical regression | `src/tests/*.test.js` via `wdio run` |
+| Canonical regression | `tests/*.test.js` via `wdio run` |
 | Long E2E / payment | `scripts/*` + flow **component** |
 | Caps / session | `AppConfig` + `SessionFactory` / WDIO services |
 
@@ -45,7 +45,7 @@ npm.cmd run test:withdraw:script
 
 ## Config notes
 
-- Specs glob: `wdio.conf.js` → `./src/tests/**/*.test.js`
+- Specs glob: `wdio.conf.js` → `./tests/**/*.test.js`
 - Appium service / remote `127.0.0.1:4723`
 - Timeouts must tolerate emulator + WEBVIEW (minutes, not seconds)
 

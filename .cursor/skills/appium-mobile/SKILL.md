@@ -65,10 +65,10 @@ $env:SKIP_BUY = "1"; $env:WITHDRAW_AMOUNT = "500"; node .\scripts\withdrawal-flo
 
 ```
 scripts/*.js          → thin CLI (env + SessionFactory)
-src/components/*      → orchestrate flows (Buy / Withdraw)
-src/pages/*           → locators + UI actions only
-src/core/*            → DriverManager, SessionFactory
-src/config/AppConfig  → caps + credentials from env
+services/*            → flows + DriverManager + AppConfig (Buy / Withdraw)
+pages/*               → locators + UI actions only
+tests/*               → WDIO / Mocha specs
+scripts/*             → CLI runners (test:buy:script, etc.)
 ```
 
 ## Hard rules

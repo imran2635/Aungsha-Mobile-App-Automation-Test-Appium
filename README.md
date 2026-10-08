@@ -39,10 +39,9 @@ flowchart LR
 
 | Layer | Folder | Responsibility |
 |-------|--------|----------------|
-| CLI / specs | `scripts/`, `src/tests/` | Run entry points |
-| Flows | `src/components/` | Multi-screen orchestration |
-| UI | `src/pages/` | Locators + taps only |
-| Infra | `src/core/`, `src/config/` | Session, caps, env |
+| CLI / specs | `scripts/`, `tests/` | Run entry points |
+| Flows / infra | `services/` | Buy/Withdraw flows, Driver, Checkpoint, AppConfig |
+| UI | `pages/` | Locators + taps only |
 
 **Rule:** locators live in page classes only — never hardcode XPath in scripts.
 
@@ -51,12 +50,9 @@ flowchart LR
 ## Project structure
 
 ```
-├── src/
-│   ├── components/          # BaseFlow, BuyFlow, WithdrawFlow
-│   ├── pages/               # Login, Home, Marketplace, Buy, Payment, Receipt, Withdraw
-│   ├── core/                # DriverManager, SessionFactory, runStandaloneFlow
-│   ├── config/              # AppConfig (env + capabilities)
-│   └── tests/               # Mocha / WDIO specs (+ helpers)
+├── pages/                   # Login, Home, Marketplace, Buy, Payment, Receipt, Withdraw
+├── tests/                   # Mocha / WDIO specs (+ helpers)
+├── services/                # Flows + DriverManager, SessionFactory, AppConfig, Checkpoint
 ├── scripts/                 # Canonical run CLIs
 │   ├── tools/               # inspect-device, UI label helper
 │   └── legacy/              # explore / dump helpers (optional)

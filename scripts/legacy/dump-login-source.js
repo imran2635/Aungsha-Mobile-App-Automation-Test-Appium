@@ -2,7 +2,7 @@ const { remote } = require('webdriverio');
 const fs = require('fs');
 const path = require('path');
 require('dotenv').config({ path: path.join(__dirname, '..', '..', '.env') });
-const appConfig = require('../../src/config/AppConfig');
+const appConfig = require('../../services/AppConfig');
 
 (async () => {
   const driver = await remote({

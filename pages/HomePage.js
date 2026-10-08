@@ -76,7 +76,7 @@ class HomePage extends BasePage {
     }
 
     try {
-      await this.driver.activateApp(require('../config/AppConfig').appPackage);
+      await this.driver.activateApp(require('../services/AppConfig').appPackage);
     } catch {
       // ignore
     }

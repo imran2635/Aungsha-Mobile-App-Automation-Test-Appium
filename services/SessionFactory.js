@@ -1,5 +1,5 @@
 const { remote } = require('webdriverio');
-const appConfig = require('../config/AppConfig');
+const appConfig = require('./AppConfig');
 
 /**
  * Creates a standalone WebdriverIO session (CLI / non-WDIO runners).

@@ -1,5 +1,5 @@
 const BasePage = require('./BasePage');
-const appConfig = require('../config/AppConfig');
+const appConfig = require('../services/AppConfig');
 
 /**
  * Login screen Page Object for Aungsha.

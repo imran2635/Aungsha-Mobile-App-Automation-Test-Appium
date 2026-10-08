@@ -5,8 +5,8 @@
 const path = require('path');
 require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
 
-const BuyFlowComponent = require('../src/components/BuyFlowComponent');
-const { runStandaloneFlow } = require('../src/core/runStandaloneFlow');
+const BuyFlowComponent = require('../services/BuyFlowComponent');
+const { runStandaloneFlow } = require('../services/runStandaloneFlow');
 
 const raw = (process.argv[2] || 'mbanking').toLowerCase();
 const aliases = {

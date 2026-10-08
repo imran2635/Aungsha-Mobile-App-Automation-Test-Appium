@@ -15,29 +15,29 @@ description: >-
 2. **Reuse** existing methods. No duplicate helpers or copy-paste flows.
 3. **Inheritance**: pages extend `BasePage` (`show`, `findFirst`, `tap`, `tapAt`, `scroll`, `type`, `isVisible`).
 4. **Separation**:
-   - `src/pages/*` — UI only
-   - `src/components/*` — multi-page orchestration
-   - `scripts/*` — env + session + call component
-   - `src/tests/*` — Mocha assertions / WDIO specs
+   - `pages/*` — UI only
+   - `services/*` — multi-page orchestration + driver/config
+   - `scripts/*` — env + session + call service
+   - `tests/*` — Mocha assertions / WDIO specs
 5. **Minimum code** — change only what the task needs.
 6. Prefer `waitUntil` / `isVisible` over fixed `sleep` (except `show()` / `STEP_PAUSE_MS` for visibility).
 
 ## File map
 
 ```
-src/pages/BasePage.js
-src/pages/LoginPage.js
-src/pages/HomePage.js          # goHome, openFund, openFundThenWithdraw
-src/pages/MarketplacePage.js
-src/pages/ProjectBuyPage.js
-src/pages/PaymentGatewayPage.js
-src/pages/ReceiptPage.js
-src/pages/WithdrawPage.js
-src/components/BuyFlowComponent.js
-src/components/WithdrawFlowComponent.js
-src/core/DriverManager.js
-src/core/SessionFactory.js
-src/config/AppConfig.js
+pages/BasePage.js
+pages/LoginPage.js
+pages/HomePage.js          # goHome, openFund, openFundThenWithdraw
+pages/MarketplacePage.js
+pages/ProjectBuyPage.js
+pages/PaymentGatewayPage.js
+pages/ReceiptPage.js
+pages/WithdrawPage.js
+services/BuyFlowComponent.js
+services/WithdrawFlowComponent.js
+services/DriverManager.js
+services/SessionFactory.js
+services/AppConfig.js
 ```
 
 ## New page checklist

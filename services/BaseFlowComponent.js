@@ -1,7 +1,7 @@
-const appConfig = require('../config/AppConfig');
-const DriverManager = require('../core/DriverManager');
-const SessionFactory = require('../core/SessionFactory');
-const checkpoint = require('../core/Checkpoint');
+const appConfig = require('./AppConfig');
+const DriverManager = require('./DriverManager');
+const SessionFactory = require('./SessionFactory');
+const checkpoint = require('./Checkpoint');
 
 /**
  * Shared OOP base for flow components (session + driver bind).

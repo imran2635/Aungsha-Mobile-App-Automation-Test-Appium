@@ -7,27 +7,16 @@
 ## Source tree (automation)
 
 ```
-src/
-  config/AppConfig.js          # EMAIL/PASSWORD, MBANKING_*, BKASH_*, WITHDRAW_*, caps
-  core/DriverManager.js        # setDriver, launchApp, terminateApp, takeScreenshot
-  core/SessionFactory.js       # createStandalone()
-  components/
-    BaseFlowComponent.js       # shared session recover / bind
-    BuyFlowComponent.js        # login → Cloud9 → checkout → docs
-    WithdrawFlowComponent.js   # optional buy → Fund → Withdraw; recover + retry
-  pages/
-    BasePage.js                # show, findFirst, tap, tapAt, scroll, type, isVisible
-    LoginPage.js               # login, ensureLoggedIn
-    HomePage.js                # goHome, openFund, openFundThenWithdraw, waitUntilLoaded
-    MarketplacePage.js         # openBuyShares, openCloud9Inani
-    ProjectBuyPage.js          # tapBuy, confirmPurchase, wallet, Others/SurjoPay/bKash
-    PaymentGatewayPage.js      # mBANKING + forced bKash WEBVIEW
-    ReceiptPage.js             # waitForSuccess, captureReceiptAndCertificate
-    WithdrawPage.js            # bKash method, amount, Submit Withdrawal
-  tests/
-    login-flow.test.js
-    buy-flow.test.js
-    buy-bkash.test.js
+pages/                         # POM (same idea as Playwright pages/)
+  BasePage.js
+  LoginPage.js / HomePage.js / MarketplacePage.js / …
+services/                      # flows + driver + config (≈ Playwright services/)
+  AppConfig.js / DriverManager.js / SessionFactory.js / Checkpoint.js
+  BuyFlowComponent.js / WithdrawFlowComponent.js / BaseFlowComponent.js
+  runStandaloneFlow.js
+tests/                         # WDIO Mocha specs
+  login-flow.test.js / buy-flow.test.js / buy-bkash.test.js
+  helpers/describeBuyFlow.js
 scripts/
   withdrawal-flow.js           # Fund → Withdraw CLI
   project-buy-bkash.js
@@ -96,7 +85,7 @@ Sandbox: mBANKING/withdraw `01772559986` pin `1234`; withdraw amount `500`.
 
 ## Coding preferences for future agents
 
-- Extend `BasePage`; orchestration in components; thin scripts.
+- Extend `BasePage`; orchestration in `services/*`; thin scripts.
 - After payment always plan for session recover.
 - Update this reference when npm scripts or major flows change.
 - Git: never force-push unless asked; never commit `.env`; no Cursor co-author.

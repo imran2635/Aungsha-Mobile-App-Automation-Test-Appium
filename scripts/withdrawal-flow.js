@@ -6,8 +6,8 @@
 const path = require('path');
 require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
 
-const WithdrawFlowComponent = require('../src/components/WithdrawFlowComponent');
-const { runStandaloneFlow } = require('../src/core/runStandaloneFlow');
+const WithdrawFlowComponent = require('../services/WithdrawFlowComponent');
+const { runStandaloneFlow } = require('../services/runStandaloneFlow');
 
 runStandaloneFlow((driver) => new WithdrawFlowComponent(driver)).catch((err) => {
   console.error(err);

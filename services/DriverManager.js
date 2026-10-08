@@ -1,4 +1,4 @@
-const appConfig = require('../config/AppConfig');
+const appConfig = require('./AppConfig');
 const fs = require('fs');
 const path = require('path');
 
