@@ -37,32 +37,44 @@ class BuyFlowComponent extends BaseFlowComponent {
     const resumePurchase =
       options.resumePurchase === true || process.env.RESUME_PURCHASE === '1';
 
-    if (!resumePurchase) {
-      const { email, password } = appConfig.getCredentials();
-      if (!email || !password) {
-        throw new Error('EMAIL / PASSWORD missing in .env');
+    try {
+      if (!resumePurchase) {
+        await this.checkpoint.run('Credentials + launch app', async () => {
+          const { email, password } = appConfig.getCredentials();
+          if (!email || !password) {
+            throw new Error('EMAIL / PASSWORD missing in .env');
+          }
+          await DriverManager.terminateApp();
+          await DriverManager.launchApp();
+        });
+        const { email, password } = appConfig.getCredentials();
+        await this.checkpoint.run('Login', () => this._login(email, password));
+        await this.checkpoint.run('Open project', () => this._openCloud9());
+      } else {
+        await this.checkpoint.run('Resume Purchase Details', async () => {
+          console.log('[BuyFlowComponent] Resume from current Purchase Details');
+          try {
+            await this.driver.activateApp(appConfig.appPackage);
+          } catch {
+            // already foreground
+          }
+        });
       }
-      await DriverManager.terminateApp();
-      await DriverManager.launchApp();
-      await this._login(email, password);
-      await this._openCloud9();
-    } else {
-      console.log('[BuyFlowComponent] Resume from current Purchase Details');
-      try {
-        await this.driver.activateApp(appConfig.appPackage);
-      } catch {
-        // already foreground
+
+      if (walletAmount) {
+        await this.checkpoint.run(`Apply wallet ৳${walletAmount}`, () =>
+          this.projectBuyPage.applyWalletBalance(walletAmount)
+        );
       }
-    }
 
-    if (walletAmount) {
-      console.log(`[BuyFlowComponent] Apply Wallet Balance ৳${walletAmount}`);
-      await this.projectBuyPage.applyWalletBalance(walletAmount);
+      await this.checkpoint.run('Confirm purchase', () => this.projectBuyPage.confirmPurchase());
+      await this.checkpoint.run(`Checkout (${method})`, () => this._checkout(method));
+      await this.checkpoint.run('Receipt / success', () => this._captureDocs());
+      this.checkpoint.pass('Buy flow DONE');
+    } catch (err) {
+      this.checkpoint.fail('Buy flow aborted', err);
+      throw err;
     }
-
-    await this.projectBuyPage.confirmPurchase();
-    await this._checkout(method);
-    await this._captureDocs();
   }
 
   /** @private */
@@ -82,7 +94,7 @@ class BuyFlowComponent extends BaseFlowComponent {
 
   /** @private */
   async _openCloud9() {
-    console.log('[BuyFlowComponent] Marketplace → Cloud 9');
+    console.log('[BuyFlowComponent] Marketplace → project');
     await this.marketplacePage.openBuyShares();
     await this.marketplacePage.openCloud9Inani();
     await this.projectBuyPage.tapBuy();

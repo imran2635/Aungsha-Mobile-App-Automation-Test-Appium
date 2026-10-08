@@ -106,20 +106,22 @@ class ProjectBuyPage extends BasePage {
   }
 
   async tapBuy() {
-    await this.tap(this.buyButtons, 25000);
-    await this.driver.waitUntil(
-      async () =>
-        this.isVisible(
-          [
-            '//*[contains(@content-desc,"Purchase amount")]',
-            '//*[contains(@content-desc,"Total payable")]',
-            '//*[contains(@content-desc,"Apply Wallet Balance")]',
-          ],
-          1200
-        ),
-      { timeout: 30000, timeoutMsg: 'Purchase Details did not open after Buy shares now' }
-    );
-    await this.show('Purchase Details');
+    await this.check('Tap Buy shares now', async () => {
+      await this.tap(this.buyButtons, 25000);
+      await this.driver.waitUntil(
+        async () =>
+          this.isVisible(
+            [
+              '//*[contains(@content-desc,"Purchase amount")]',
+              '//*[contains(@content-desc,"Total payable")]',
+              '//*[contains(@content-desc,"Apply Wallet Balance")]',
+            ],
+            1200
+          ),
+        { timeout: 30000, timeoutMsg: 'Purchase Details did not open after Buy shares now' }
+      );
+      await this.show('Purchase Details');
+    });
   }
 
   async setQuantityIfPresent(qty = '1') {
@@ -345,17 +347,18 @@ class ProjectBuyPage extends BasePage {
   }
 
   async confirmPurchase() {
-    // Forced Continue — retry if keyboard covers button
-    for (let i = 0; i < 4; i += 1) {
-      if (await this.isVisible(this.confirmButtons, 3000)) {
-        await this.tap(this.confirmButtons);
-        await this.show('Continue / confirm');
-        return;
+    await this.check('Confirm / Continue purchase', async () => {
+      for (let i = 0; i < 4; i += 1) {
+        if (await this.isVisible(this.confirmButtons, 3000)) {
+          await this.tap(this.confirmButtons);
+          await this.show('Continue / confirm');
+          return;
+        }
+        await this.tapAt(540, 2290);
+        await this.driver.pause(800);
       }
-      await this.tapAt(540, 2290);
-      await this.driver.pause(800);
-    }
-    await this.show('Continue forced coords');
+      await this.show('Continue forced coords');
+    });
   }
 
   /**

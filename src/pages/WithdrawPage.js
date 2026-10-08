@@ -171,37 +171,33 @@ class WithdrawPage extends BasePage {
    * @param {{ number?: string, amount?: number|string }} opts
    */
   async completeBkashWithdrawal({ number = '01772559986', amount = 500 } = {}) {
-    console.log('[WithdrawPage] 1) Wait Withdraw screen');
-    await this.waitUntilLoaded();
+    await this.check('Wait Withdraw screen', () => this.waitUntilLoaded());
 
     const onAmountStep = await this.isVisible(this.amountField, 2500);
     const hasContinue = await this.isVisible(this.continueToAmount, 2000);
 
     if (!onAmountStep) {
-      console.log(`[WithdrawPage] 2) Tap bKash toggle ${number} (if shown)`);
-      const picked = await this.trySelectBkashMethod(number);
-      if (!picked && !hasContinue) {
-        throw new Error(`bKash method ${number} not found on Withdraw`);
-      }
-      if (!picked) {
-        console.log('[WithdrawPage] 2) bKash toggle skipped — method already set');
-      }
+      await this.check(`Select bKash ${number}`, async () => {
+        const picked = await this.trySelectBkashMethod(number);
+        if (!picked && !hasContinue) {
+          throw new Error(`bKash method ${number} not found on Withdraw`);
+        }
+        if (!picked) {
+          await this.show('bKash toggle skipped — method already set');
+        }
+      });
     } else {
-      console.log('[WithdrawPage] 2) Skip method — amount step already visible');
+      await this.show('Skip method — amount step already visible');
     }
 
     if (!onAmountStep && (await this.isVisible(this.continueToAmount, 4000))) {
-      console.log('[WithdrawPage] 3) Continue to Amount');
-      await this.continueToAmountStep();
+      await this.check('Continue to Amount', () => this.continueToAmountStep());
     } else {
-      console.log('[WithdrawPage] 3) Skip Continue — already on amount');
+      await this.show('Skip Continue — already on amount');
     }
 
-    console.log(`[WithdrawPage] 4) Enter amount ৳${amount}`);
-    await this.enterAmount(amount);
-
-    console.log('[WithdrawPage] 5) Submit Withdrawal');
-    await this.submit();
+    await this.check(`Enter amount ৳${amount}`, () => this.enterAmount(amount));
+    await this.check('Submit Withdrawal', () => this.submit());
   }
 }
 

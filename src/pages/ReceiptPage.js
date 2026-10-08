@@ -97,19 +97,21 @@ class ReceiptPage extends BasePage {
   }
 
   async captureReceiptAndCertificate() {
-    await this.driver.waitUntil(async () => this.isVisible(this.viewReceipt, 1500), {
-      timeout: 90000,
-      timeoutMsg: 'View Receipt not shown after payment',
-    });
-    await this.openDownloadable(this.viewReceipt, 'receipt');
-    if (!(await this.isVisible(this.viewCertificate, 2000))) {
-      for (let i = 0; i < 4; i += 1) {
-        await this.driver.back();
-        if (await this.isVisible(this.viewCertificate, 1000)) break;
+    await this.check('Capture receipt + certificate', async () => {
+      await this.driver.waitUntil(async () => this.isVisible(this.viewReceipt, 1500), {
+        timeout: 90000,
+        timeoutMsg: 'View Receipt not shown after payment',
+      });
+      await this.openDownloadable(this.viewReceipt, 'receipt');
+      if (!(await this.isVisible(this.viewCertificate, 2000))) {
+        for (let i = 0; i < 4; i += 1) {
+          await this.driver.back();
+          if (await this.isVisible(this.viewCertificate, 1000)) break;
+        }
       }
-    }
-    await this.openDownloadable(this.viewCertificate, 'certificate');
-    await this.show('Receipt + certificate captured');
+      await this.openDownloadable(this.viewCertificate, 'certificate');
+      await this.show('Receipt + certificate captured');
+    });
   }
 }
 

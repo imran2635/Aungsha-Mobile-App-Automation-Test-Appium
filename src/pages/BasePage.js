@@ -1,6 +1,8 @@
+const checkpoint = require('../core/Checkpoint');
+
 /**
  * Base Page Object — shared waiting, tapping, typing helpers.
- * All page classes extend this (POM + OOP inheritance).
+ * Every show() = PASSED; tap/type/find failures = FAILED.
  */
 class BasePage {
   /**
@@ -9,47 +11,60 @@ class BasePage {
   constructor(driver) {
     this.driver = driver;
     this.defaultTimeout = 12000;
-    // Pause so steps are visible on slow emulator UI (ms). Set STEP_PAUSE_MS=0 to skip.
     this.stepPauseMs = Number(process.env.STEP_PAUSE_MS ?? 1800);
+    this.checkpoint = checkpoint;
   }
 
   /**
-   * Human-visible pause + terminal note (emulator follow-along).
+   * Visible step on emulator + checkpoint PASSED.
    */
   async show(label) {
-    if (label) console.log(`    [EMU] ${label}`);
+    if (label) {
+      this.checkpoint.pass(label);
+    }
     if (this.stepPauseMs > 0) {
       await this.driver.pause(this.stepPauseMs);
     }
   }
 
-  /**
-   * Resolve the first existing element from selector candidates.
-   * @param {string[]} selectors
-   * @param {number} timeout
-   */
+  pass(name) {
+    return this.checkpoint.pass(name);
+  }
+
+  fail(name, err) {
+    return this.checkpoint.fail(name, err);
+  }
+
+  async check(name, fn) {
+    return this.checkpoint.run(name, fn);
+  }
+
   async findFirst(selectors, timeout = this.defaultTimeout) {
     let matched;
 
-    await this.driver.waitUntil(
-      async () => {
-        for (const selector of selectors) {
-          const el = await this.driver.$(selector);
-          if (await el.isExisting()) {
-            matched = el;
-            return true;
+    try {
+      await this.driver.waitUntil(
+        async () => {
+          for (const selector of selectors) {
+            const el = await this.driver.$(selector);
+            if (await el.isExisting()) {
+              matched = el;
+              return true;
+            }
           }
+          return false;
+        },
+        {
+          timeout,
+          interval: 400,
+          timeoutMsg: `Element not found: ${selectors.join(' | ')}`,
         }
-        return false;
-      },
-      {
-        timeout,
-        interval: 400,
-        timeoutMsg: `Element not found: ${selectors.join(' | ')}`,
-      }
-    );
-
-    return matched;
+      );
+      return matched;
+    } catch (err) {
+      this.checkpoint.fail(`Find element (${selectors[0]})`, err);
+      throw err;
+    }
   }
 
   async tap(selectors, timeout = this.defaultTimeout) {
@@ -83,25 +98,29 @@ class BasePage {
   }
 
   async type(selectors, value) {
-    const el = await this.findFirst(selectors);
-    await el.click();
-    await this.driver.pause(300);
     try {
-      await el.clearValue();
-    } catch {
-      // Flutter fields often reject clearValue
+      const el = await this.findFirst(selectors);
+      await el.click();
+      await this.driver.pause(300);
+      try {
+        await el.clearValue();
+      } catch {
+        // Flutter fields often reject clearValue
+      }
+      try {
+        await this.driver.execute('mobile: type', { text: String(value) });
+      } catch {
+        await this.driver.keys(String(value));
+      }
+      return el;
+    } catch (err) {
+      if (!String(err && err.message).includes('Element not found')) {
+        this.checkpoint.fail(`Type (${selectors[0]})`, err);
+      }
+      throw err;
     }
-    try {
-      await this.driver.execute('mobile: type', { text: String(value) });
-    } catch {
-      await this.driver.keys(String(value));
-    }
-    return el;
   }
 
-  /**
-   * Fast visibility check — does not burn a long wait when missing.
-   */
   async isVisible(selectors, timeout = 1500) {
     const start = Date.now();
     while (Date.now() - start < timeout) {

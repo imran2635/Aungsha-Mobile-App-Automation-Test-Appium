@@ -41,29 +41,38 @@ class WithdrawFlowComponent extends BaseFlowComponent {
       process.env.WITHDRAW_AMOUNT ||
       appConfig.getWithdrawalCredentials().amount;
 
-    if (!skipBuy) {
-      console.log(`[WithdrawFlow] Project buy (${buyMethod})`);
-      await this.buy.execute(buyMethod);
-      this._bind(this.buy.driver);
-      await this.recoverSession('[WithdrawFlow] Recovering Appium session…');
-    } else {
-      console.log('[WithdrawFlow] Skip buy — start from current session');
-      try {
-        await this.driver.activateApp(appConfig.appPackage);
-      } catch {
-        await this.recoverSession('[WithdrawFlow] Recovering Appium session…');
+    try {
+      if (!skipBuy) {
+        await this.checkpoint.run(`Project buy (${buyMethod})`, async () => {
+          await this.buy.execute(buyMethod);
+          this._bind(this.buy.driver);
+          await this.recoverSession('[WithdrawFlow] Recovering Appium session…');
+        });
+      } else {
+        await this.checkpoint.run('Skip buy — activate app', async () => {
+          try {
+            await this.driver.activateApp(appConfig.appPackage);
+          } catch {
+            await this.recoverSession('[WithdrawFlow] Recovering Appium session…');
+          }
+        });
       }
+
+      await this.checkpoint.run('Home → Fund → Withdraw', () =>
+        this.withSessionRetry(() => this.homePage.openFundThenWithdraw(), {
+          label: '[WithdrawFlow] Recovering Appium session…',
+        })
+      );
+
+      await this.checkpoint.run(`bKash withdraw ৳${amount}`, () =>
+        this.withdrawPage.completeBkashWithdrawal({ number, amount })
+      );
+
+      this.checkpoint.pass('Withdraw flow DONE');
+    } catch (err) {
+      this.checkpoint.fail('Withdraw flow aborted', err);
+      throw err;
     }
-
-    console.log('[WithdrawFlow] Home → Fund → Withdraw');
-    await this.withSessionRetry(() => this.homePage.openFundThenWithdraw(), {
-      label: '[WithdrawFlow] Recovering Appium session…',
-    });
-
-    console.log(`[WithdrawFlow] bKash ${number} → Amount ৳${amount} → Submit`);
-    await this.withdrawPage.completeBkashWithdrawal({ number, amount });
-
-    console.log('[WithdrawFlow] DONE');
   }
 }
 

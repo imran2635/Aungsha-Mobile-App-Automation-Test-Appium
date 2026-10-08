@@ -11,7 +11,6 @@ class DriverManager {
   }
 
   /**
-   * WDIO injects global `browser`/`driver` for mobile sessions.
    * @param {WebdriverIO.Browser} browserInstance
    */
   setDriver(browserInstance) {
@@ -47,7 +46,10 @@ class DriverManager {
         }
         try {
           const current = await driver.getCurrentPackage();
-          return current === appPackage || current === 'com.google.android.permissioncontroller';
+          return (
+            current === appPackage ||
+            current === 'com.google.android.permissioncontroller'
+          );
         } catch {
           return false;
         }

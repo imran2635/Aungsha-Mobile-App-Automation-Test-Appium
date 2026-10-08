@@ -123,6 +123,11 @@ class PaymentGatewayPage extends BasePage {
    * Path: Others → Continue → ShurjoPay → mBANKING
    */
   async completeMBankingPayment({ number, pin }) {
+    return this.check('ShurjoPay mBANKING payment', () => this._completeMBankingPayment({ number, pin }));
+  }
+
+  /** @private */
+  async _completeMBankingPayment({ number, pin }) {
     console.log('[ShurjoPay] Waiting WEBVIEW for mBANKING');
     await this.switchToWebView(90000);
     await this.driver.pause(2500);
@@ -300,6 +305,13 @@ class PaymentGatewayPage extends BasePage {
    * App bKash → WEBVIEW: #WALLET → #OTP → #PIN (forced).
    */
   async completeBkashPayment({ number, otp, pin }) {
+    return this.check('bKash WEBVIEW payment', () =>
+      this._completeBkashPayment({ number, otp, pin })
+    );
+  }
+
+  /** @private */
+  async _completeBkashPayment({ number, otp, pin }) {
     console.log('[bKash] Waiting WEBVIEW');
     await this.switchToWebView(90000);
     await this.driver.pause(2500);

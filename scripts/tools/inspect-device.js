@@ -1,5 +1,5 @@
 /**
- * Quick helper: list devices and Aungsha-related packages on the connected tablet.
+ * Quick helper: list devices and Aungsha-related packages on the connected device.
  */
 const { execSync } = require('child_process');
 const path = require('path');
@@ -18,10 +18,8 @@ const adbCandidates = [
   'adb',
   path.join(
     process.env.LOCALAPPDATA || '',
-    'Microsoft',
-    'WinGet',
-    'Packages',
-    'Google.PlatformTools_Microsoft.Winget.Source_8wekyb3d8bbwe',
+    'Android',
+    'Sdk',
     'platform-tools',
     'adb.exe'
   ),
@@ -47,13 +45,7 @@ console.log(run(`"${adb}" shell pm list packages | findstr /i aungsha`));
 
 const pkg = process.env.APP_PACKAGE || 'com.aungsha.app';
 console.log(`\n=== Launcher activity for ${pkg} ===`);
+console.log(run(`"${adb}" shell cmd package resolve-activity --brief ${pkg}`));
 console.log(
-  run(
-    `"${adb}" shell cmd package resolve-activity --brief ${pkg}`
-  )
-);
-console.log(
-  run(
-    `"${adb}" shell dumpsys package ${pkg} | findstr /i "Activity Resolver"`
-  )
+  run(`"${adb}" shell dumpsys package ${pkg} | findstr /i "Activity Resolver"`)
 );

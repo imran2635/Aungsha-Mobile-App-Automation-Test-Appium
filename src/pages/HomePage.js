@@ -158,8 +158,8 @@ class HomePage extends BasePage {
 
   /** Home → Fund → Withdraw CTA (preferred entry). */
   async openFundThenWithdraw() {
-    await this.openFund();
-    await this.tapWithdrawOnFundScreen();
+    await this.check('Open Fund / wallet', () => this.openFund());
+    await this.check('Tap Withdraw CTA', () => this.tapWithdrawOnFundScreen());
   }
 
   /** @deprecated use openFundThenWithdraw — kept for older call sites */

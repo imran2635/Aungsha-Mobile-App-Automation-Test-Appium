@@ -1,6 +1,7 @@
 const appConfig = require('../config/AppConfig');
 const DriverManager = require('../core/DriverManager');
 const SessionFactory = require('../core/SessionFactory');
+const checkpoint = require('../core/Checkpoint');
 
 /**
  * Shared OOP base for flow components (session + driver bind).
@@ -11,6 +12,7 @@ class BaseFlowComponent {
    * @param {WebdriverIO.Browser} driver
    */
   constructor(driver) {
+    this.checkpoint = checkpoint;
     this._bind(driver);
   }
 

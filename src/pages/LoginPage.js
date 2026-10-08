@@ -1,4 +1,5 @@
 const BasePage = require('./BasePage');
+const appConfig = require('../config/AppConfig');
 
 /**
  * Login screen Page Object for Aungsha.
@@ -67,14 +68,7 @@ class LoginPage extends BasePage {
 
     for (let i = 0; i < 5; i += 1) {
       if (await this.isVisible(this.logoutLinks, 1000)) break;
-      await this.driver.execute('mobile: scrollGesture', {
-        left: 100,
-        top: 600,
-        width: 800,
-        height: 1200,
-        direction: 'up',
-        percent: 0.65,
-      });
+      await this.scroll('up', 0.65);
     }
 
     if (await this.isVisible(this.logoutLinks, 2000)) {
@@ -82,16 +76,12 @@ class LoginPage extends BasePage {
       await this.show('Tapped Sign out');
       // Confirm dialogs
       for (const label of ['Confirm', 'Yes', 'OK', 'Sign out', 'Log out']) {
-        const btn = await this.driver.$(
-          `//*[contains(@content-desc,"${label}") or contains(@text,"${label}")]`
-        );
-        if (await btn.isExisting()) {
-          const loc = await btn.getLocation();
-          const size = await btn.getSize();
-          await this.driver.execute('mobile: clickGesture', {
-            x: Math.round(loc.x + size.width / 2),
-            y: Math.round(loc.y + size.height / 2),
-          });
+        const candidates = [
+          `~${label}`,
+          `//*[contains(@content-desc,"${label}") or contains(@text,"${label}")]`,
+        ];
+        if (await this.isVisible(candidates, 800)) {
+          await this.tap(candidates, 5000);
           await this.show(`Confirm ${label}`);
           break;
         }
@@ -101,12 +91,12 @@ class LoginPage extends BasePage {
       // Soft fallback: terminate + relaunch so UI resets toward guest/login
       await this.show('No Sign out button — relaunching app');
       try {
-        await this.driver.terminateApp('com.aungsha.app');
+        await this.driver.terminateApp(appConfig.appPackage);
       } catch {
         // ignore
       }
       await this.driver.pause(1000);
-      await this.driver.activateApp('com.aungsha.app');
+      await this.driver.activateApp(appConfig.appPackage);
       await this.driver.pause(2500);
     }
   }
@@ -130,14 +120,7 @@ class LoginPage extends BasePage {
       if (await this.isVisible(this.loginEntryLinks, 1200)) {
         break;
       }
-      await this.driver.execute('mobile: scrollGesture', {
-        left: 100,
-        top: 600,
-        width: 800,
-        height: 1200,
-        direction: 'up',
-        percent: 0.65,
-      });
+      await this.scroll('up', 0.65);
     }
 
     if (await this.isVisible(this.loginEntryLinks, 2000)) {
@@ -171,19 +154,11 @@ class LoginPage extends BasePage {
   }
 
   async login(email, password) {
-    // Force visible login path on emulator (don't silently skip)
-    console.log('    -> ensure logged out (visible demo)');
-    await this.ensureLoggedOutForVisibleDemo();
-
-    console.log('    -> open login screen');
-    await this.openLoginScreenIfNeeded();
-
-    console.log('    -> enter email');
-    await this.enterEmail(email);
-    console.log('    -> enter password');
-    await this.enterPassword(password);
-    console.log('    -> tap Sign in');
-    await this.tapLogin();
+    await this.check('Logout demo (visible login)', () => this.ensureLoggedOutForVisibleDemo());
+    await this.check('Open login screen', () => this.openLoginScreenIfNeeded());
+    await this.check('Enter email', () => this.enterEmail(email));
+    await this.check('Enter password', () => this.enterPassword(password));
+    await this.check('Tap Sign in', () => this.tapLogin());
   }
 
   /**
@@ -196,7 +171,7 @@ class LoginPage extends BasePage {
     }
 
     if (await this.isVisible(this.profileTab, 1500)) {
-      await this.tap(this.profileTab, 6000);
+      await this.check('Open Profile', () => this.tap(this.profileTab, 6000));
       await this.show('Profile opened');
       if (
         !(await this.isVisible(this.loginEntryLinks, 1500)) &&
@@ -211,14 +186,14 @@ class LoginPage extends BasePage {
       }
     }
 
-    await this.openLoginScreenIfNeeded();
+    await this.check('Open login screen', () => this.openLoginScreenIfNeeded());
     if (!(await this.isLoginFormDisplayed())) {
       await this.show('No login form — continue');
       return;
     }
-    await this.enterEmail(email);
-    await this.enterPassword(password);
-    await this.tapLogin();
+    await this.check('Enter email', () => this.enterEmail(email));
+    await this.check('Enter password', () => this.enterPassword(password));
+    await this.check('Tap Sign in', () => this.tapLogin());
   }
 
   async isLoginFormDisplayed() {

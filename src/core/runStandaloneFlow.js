@@ -1,6 +1,6 @@
-const appConfig = require('../config/AppConfig');
 const DriverManager = require('../core/DriverManager');
 const SessionFactory = require('../core/SessionFactory');
+const checkpoint = require('./Checkpoint');
 
 /**
  * Run a flow component with a standalone Appium session (CLI).
@@ -10,13 +10,18 @@ const SessionFactory = require('../core/SessionFactory');
  * @param {unknown[]} [executeArgs]
  */
 async function runStandaloneFlow(createFlow, executeArgs = []) {
-  let driver = await SessionFactory.createStandalone();
-  DriverManager.setDriver(driver);
+  checkpoint.reset();
+  let driver;
+  await checkpoint.run('Create Appium session', async () => {
+    driver = await SessionFactory.createStandalone();
+    DriverManager.setDriver(driver);
+  });
   const flow = createFlow(driver);
 
   try {
     await flow.execute(...executeArgs);
   } finally {
+    checkpoint.summary();
     driver = flow.driver || driver;
     await SessionFactory.quitQuietly(driver);
   }
