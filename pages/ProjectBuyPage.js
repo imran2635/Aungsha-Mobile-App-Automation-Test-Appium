@@ -61,9 +61,29 @@ class ProjectBuyPage extends BasePage {
       '~Apply',
     ];
     this.referralMarkers = [
-      '//*[contains(@content-desc,"referral")]',
       '//*[contains(@content-desc,"Have a referral")]',
+      '//*[contains(@content-desc,"referral code")]',
+      '//*[contains(@content-desc,"referral")]',
       '//*[contains(@content-desc,"Invalid referral")]',
+    ];
+    this.referralFieldHints = [
+      '//*[contains(@content-desc,"Have a referral")]',
+      '//*[contains(@content-desc,"referral code")]',
+      '//*[contains(@content-desc,"Enter referral")]',
+      '//*[contains(@content-desc,"Referral")]',
+    ];
+    this.referralApply = [
+      '//*[@content-desc="Apply"]',
+      '~Apply',
+      '//*[contains(@content-desc,"Apply") and contains(@content-desc,"referral")]',
+      '//*[contains(@content-desc,"Apply code")]',
+    ];
+    this.referralApplied = [
+      '//*[contains(@content-desc,"Referral applied")]',
+      '//*[contains(@content-desc,"discount applied")]',
+      '//*[contains(@content-desc,"5%")]',
+      '//*[contains(@content-desc,"Remove")]',
+      '//*[contains(@content-desc,"applied")]',
     ];
     this.dismissButtons = [
       '~Dismiss',
@@ -344,12 +364,100 @@ class ProjectBuyPage extends BasePage {
   }
 
   async dismissReferralIfShown() {
-    if (await this.isVisible(this.referralMarkers, 1200) || await this.isVisible(this.dismissButtons, 800)) {
+    const invalid = [
+      '//*[contains(@content-desc,"Invalid referral")]',
+      '//*[contains(@content-desc,"Try another code")]',
+    ];
+    if (await this.isVisible(invalid, 1200) || await this.isVisible(this.dismissButtons, 800)) {
       if (await this.isVisible(this.dismissButtons, 1500)) {
         await this.tap(this.dismissButtons, 3000);
         await this.show('Dismissed referral / blocking dialog');
       }
     }
+  }
+
+  /**
+   * Checkout Purchase Details — apply referral rewards code before Continue.
+   * @param {string} code
+   */
+  async applyReferralCode(code) {
+    const want = String(code || '').trim();
+    if (!want) throw new Error('Referral code required');
+
+    await this.check(`Apply referral code ${want}`, async () => {
+      if (await this.isVisible(this.buyButtons, 1200)) {
+        await this.tapBuy();
+      }
+
+      // Bring referral strip into view (often below wallet / above Continue)
+      for (let i = 0; i < 8; i += 1) {
+        if (await this.isVisible(this.referralFieldHints, 1200)) break;
+        await this.scroll('up', 0.45);
+      }
+
+      if (await this.isVisible(this.referralFieldHints, 2500)) {
+        await this.tap(this.referralFieldHints);
+        await this.show('Referral field focused');
+      }
+
+      // Prefer empty EditText (referral), avoid wiping quantity if only one field
+      const fields = await this.driver.$$('android.widget.EditText');
+      let typed = false;
+      for (const el of fields) {
+        try {
+          if (!(await el.isDisplayed())) continue;
+          const text = String((await el.getText().catch(() => '')) || '');
+          // Skip filled unit/amount fields (long currency / single digit units already set)
+          if (/৳|TK|BDT/i.test(text)) continue;
+          await el.click();
+          await this.driver.pause(300);
+          try {
+            await el.clearValue();
+          } catch {
+            // Flutter
+          }
+          try {
+            await this.driver.execute('mobile: type', { text: want });
+          } catch {
+            await el.setValue(want).catch(async () => this.driver.keys(want.split('')));
+          }
+          typed = true;
+          await this.show(`Referral typed: ${want}`);
+          break;
+        } catch {
+          // next
+        }
+      }
+      if (!typed) {
+        // Tap mid-lower form then type
+        await this.tapAt(540, 1600);
+        await this.driver.pause(400);
+        await this.driver.execute('mobile: type', { text: want }).catch(async () => {
+          await this.driver.keys(want.split(''));
+        });
+        await this.show(`Referral typed (coords): ${want}`);
+      }
+
+      if (await this.isVisible(this.referralApply, 3000)) {
+        await this.tap(this.referralApply);
+        await this.show('Referral Apply tapped');
+      } else {
+        // Small Apply chip near referral — mid screen fallback
+        await this.tapAt(900, 1550);
+        await this.show('Referral Apply coords');
+      }
+      await this.driver.pause(2000);
+
+      await this.dismissReferralIfShown();
+      if (await this.isVisible(['//*[contains(@content-desc,"Invalid referral")]'], 1500)) {
+        throw new Error(`Invalid referral code: ${want}`);
+      }
+      if (await this.isVisible(this.referralApplied, 3000)) {
+        await this.show(`Referral rewards applied: ${want}`);
+      } else {
+        await this.show(`Referral code submitted: ${want}`);
+      }
+    });
   }
 
   async confirmPurchase() {

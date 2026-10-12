@@ -67,6 +67,13 @@ class BuyFlowComponent extends BaseFlowComponent {
         );
       }
 
+      const referralCode = options.referralCode ?? process.env.REFERRAL_CODE;
+      if (referralCode) {
+        await this.checkpoint.run(`Apply referral ${referralCode}`, () =>
+          this.projectBuyPage.applyReferralCode(referralCode)
+        );
+      }
+
       await this.checkpoint.run('Confirm purchase', () => this.projectBuyPage.confirmPurchase());
       await this.checkpoint.run(`Checkout (${method})`, () => this._checkout(method));
       await this.checkpoint.run('Receipt / success', () => this._captureDocs());
