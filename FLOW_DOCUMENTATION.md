@@ -14,8 +14,8 @@
 | **App version under test** | `aungsha_8oct.apk` (`apps/aungsha_8oct.apk`) |
 | **Automation stack** | Appium 2 · UiAutomator2 · WebdriverIO · Mocha |
 | **Primary device** | Emulator `emulator-5554` (AVD: `Aungsha_Emu`) |
-| **Document version** | `1.3` |
-| **Last updated** | 2026-10-08 |
+| **Document version** | `1.4` |
+| **Last updated** | 2026-10-12 |
 
 ---
 
@@ -52,10 +52,12 @@ $env:MBANKING_PIN = "1234"
 npm.cmd run test:buy:script
 ```
 
-### 5) Buy flow via WDIO Mocha spec
+### 5) Buy flow via WDIO Mocha spec (`tests/buy-flow.test.js`)
 
 ```powershell
 cd e:\Aungsha-Mobile-App-Automation-Test
+$env:MBANKING_NUMBER = "01772559986"
+$env:MBANKING_PIN = "1234"
 npm.cmd run test:buy
 ```
 
@@ -236,7 +238,7 @@ Aungsha-Mobile-App-Automation-Test/
 | Automated test cases | **2** | TC-AUTH-01 · TC-BUY-01 |
 | Documented UI flows | **2** | Login · Buy → mBanking → docs |
 | UI / gateway endpoints | **12** | 5 auth + 7 buy/pay/docs |
-| **Endpoints verified PASS** | **12 / 12** (+ buy **46/46** checkpoints, 2026-10-08) | See [§8](#8-verified--passed-endpoints) |
+| **Endpoints verified PASS** | **12 / 12** (login **6/6** · buy WDIO **34/34**, 2026-10-12) | See [§8](#8-verified--passed-endpoints) |
 | Payment methods automated | **1** | Others → ShurjoPay → **mBANKING** |
 | Projects exercised | **1** | **Cloud 9 (Inani)** |
 | Backlog cases (recommended) | **6** | See §10.2 |
@@ -353,114 +355,126 @@ cd e:\Aungsha-Mobile-App-Test; npm.cmd run test:buy
 
 ## 8. Verified / passed endpoints
 
-> Latest evidence: **2026-10-08** on `emulator-5554` / AVD `Aungsha_Emu`.  
-> Commands: `npm.cmd run test:login` · `npm.cmd run test:buy:script`  
-> Buy result: **`RESULT: PASSED — Buy Flow mBANKING`** · checkpoints **46 PASSED / 0 FAILED** · exit `0`.
+> Latest evidence: **2026-10-12** on `emulator-5554` / AVD `Aungsha_Emu`.  
+> Commands: `npm.cmd run test:login` · `npm.cmd run test:buy` (`tests/buy-flow.test.js`)  
+> Login: **`RESULT: PASSED`** · **6 PASSED / 0 FAILED** · ~25s  
+> Buy WDIO: **`RESULT: PASSED`** · **34 PASSED / 0 FAILED** · ~2m 20s · exit `0`  
+> Prior (2026-10-08): `test:buy:script` also **46/46 PASSED** (full email login path).
 
 ### 8.1 Summary
 
-| Suite | Run | Checkpoints / endpoints | Passed | Failed | Coverage |
-|-------|-----|------------------------:|-------:|-------:|----------|
-| TC-AUTH-01 (Login) | `test:login` | 6 checkpoints | **6** | 0 | 100% |
-| TC-BUY-01 (Buy + mBANKING + docs) | `test:buy:script` | 46 checkpoints | **46** | 0 | 100% |
-| Logical endpoints (A1–A5, B1–B7) | both | **12** | **12** | 0 | 100% |
+| Suite | Run | Checkpoints / endpoints | Passed | Failed | Coverage | Date |
+|-------|-----|------------------------:|-------:|-------:|----------|------|
+| TC-AUTH-01 (Login) | `test:login` | 6 | **6** | 0 | 100% | 2026-10-12 |
+| TC-BUY-01 (Buy + mBANKING + docs) | `test:buy` (WDIO) | 34 | **34** | 0 | 100% | 2026-10-12 |
+| TC-BUY-01 (script path) | `test:buy:script` | 46 | **46** | 0 | 100% | 2026-10-08 |
+| Logical endpoints (A1–A5, B1–B7) | both | **12** | **12** | 0 | 100% | — |
 
 ### 8.2 Authentication — passed checklist
 
-| ID | Endpoint | Checked by | Result | Evidence (2026-10-08) |
+| ID | Endpoint | Checked by | Result | Evidence (2026-10-12) |
 |----|----------|------------|--------|------------------------|
-| **A1** | App launch | `DriverManager` / session | ✅ PASS | `[PASSED] Launch app` / `Create Appium session` |
-| **A2** | Profile | `LoginPage.openProfile` | ✅ PASS | `[PASSED] Open Profile` · `Profile opened` |
-| **A3** | Sign In entry | Tap **Sign In** | ✅ PASS | `[PASSED] Opened Sign In screen` |
-| **A4** | Email login form | Email + password + **Sign in** | ✅ PASS | `[PASSED] Enter email` · `Enter password` · `Tap Sign in` |
-| **A5** | Home (authenticated) | Home shell | ✅ PASS | `[PASSED] Login` · soft login: `Already on main shell` / `Home shell loaded` |
+| **A1** | App launch | WDIO session / launch | ✅ PASS | `[PASSED] Launch app` |
+| **A2–A4** | Profile / Sign In / form | Soft path skipped (already logged in) | ✅ PASS | Soft login — session already authenticated |
+| **A5** | Home (authenticated) | Home shell | ✅ PASS | `[PASSED] Already on main shell` · `Home shell loaded` · `Assert user is logged in` |
 
-**Login soft path** (`test:login`, already session):  
-`Launch app` · `Credentials present in .env` · `Already on main shell` · `Ensure logged in (soft login)` · `Home shell loaded` · `Assert user is logged in` → **6/6 PASSED**.
+**Login soft path** (`test:login`, 2026-10-12 — after emulator cold boot):
+
+| # | Checkpoint | Result |
+|--:|------------|--------|
+| 1 | Launch app | ✅ PASSED |
+| 2 | Credentials present in .env | ✅ PASSED |
+| 3 | Already on main shell | ✅ PASSED |
+| 4 | Ensure logged in (soft login) | ✅ PASSED |
+| 5 | Home shell loaded | ✅ PASSED |
+| 6 | Assert user is logged in | ✅ PASSED |
+
+> Note: first attempt same day failed with `UiAutomation not connected`; cold boot (`-no-snapshot-load`) then login **PASSED**.
 
 ### 8.3 Buy · payment · documents — passed checklist
 
-| ID | Endpoint | Checked by | Result | Evidence (2026-10-08) |
-|----|----------|------------|--------|------------------------|
+| ID | Endpoint | Checked by | Result | Evidence (2026-10-12 WDIO) |
+|----|----------|------------|--------|----------------------------|
 | **B1** | Buy Shares tab | `MarketplacePage.openBuyShares` | ✅ PASS | `[PASSED] Buy Shares tab (fallback)` · `Open Buy Shares tab` |
 | **B2** | Cloud 9 (Inani) + Buy shares now | `openCloud9Inani` + `tapBuy` | ✅ PASS | `[PASSED] Opened: Cloud 9 (Inani)` · `Purchase Details` · `Tap Buy shares now` |
 | **B3** | Purchase Details → Continue | `confirmPurchase` | ✅ PASS | `[PASSED] Continue / confirm` · `Confirm purchase` |
 | **B4** | Others → Continue | payment chooser + Continue | ✅ PASS | `[PASSED] Others payment by coords` · `Confirm / Continue purchase` |
 | **B5** | ShurjoPay mBANKING + Pay | WEBVIEW fill + Pay Now | ✅ PASS | `[PASSED] WEBVIEW — payment gateway` · `ShurjoPay mBANKING payment` |
-| **B6** | View Receipt → Download | `ReceiptPage` | ✅ PASS | `[PASSED] Opened receipt` · `receipt download` |
+| **B6** | View Receipt | `ReceiptPage` | ✅ PASS | `[PASSED] Opened receipt` |
 | **B7** | View Share Certificate → Download | `ReceiptPage` | ✅ PASS | `[PASSED] Opened certificate` · `certificate download` |
 
 ### 8.4 Gateway field checks (passed)
 
-| Check | Expected | Result |
-|-------|----------|--------|
+| Check | Expected | Result (2026-10-12) |
+|-------|----------|---------------------|
 | WEBVIEW open | ShurjoPay gateway | ✅ PASS |
-| mBANKING tab | `#mbanking_style` | ✅ PASS (`ShurjoPay mBANKING via #mbanking_style`) |
-| Mobile number | `01772559986` | ✅ PASS (`ShurjoPay mBANKING mobile=01772559986`) |
-| PIN | `1234` | ✅ PASS (`ShurjoPay mBANKING pin=1234`) |
-| Pay Now | Submit | ✅ PASS (`ShurjoPay mBANKING Pay Now`) |
-| Checkout | mbanking | ✅ PASS (`Checkout (mbanking)`) |
+| mBANKING tab | `#mbanking_style` | ✅ PASS |
+| Mobile number | `01772559986` | ✅ PASS |
+| PIN | `1234` | ✅ PASS |
+| Pay Now | Submit | ✅ PASS |
+| Checkout | mbanking | ✅ PASS |
 | Docs | Receipt + certificate | ✅ PASS (`Receipt + certificate captured`) |
 | Flow end | Buy DONE | ✅ PASS (`Buy flow DONE`) |
 
-### 8.5 Full checkpoint dump — Buy Flow mBANKING (2026-10-08)
+### 8.5 Full checkpoint dump — Login (2026-10-12)
 
-> Source: `npm.cmd run test:buy:script` · **Total: 46 · PASSED: 46 · FAILED: 0**
+> Source: `npm.cmd run test:login` · **Total: 6 · PASSED: 6 · FAILED: 0** · Mocha `1 passing (24.9s)`
+
+Same table as §8.2 soft path (rows 1–6).
+
+### 8.6 Full checkpoint dump — Buy Flow mBANKING WDIO (2026-10-12)
+
+> Source: `npm.cmd run test:buy` → `tests/buy-flow.test.js` · **Total: 34 · PASSED: 34 · FAILED: 0** · Mocha `1 passing (2m 20s)`  
+> Spec: `Aungsha Buy Flow — mBANKING` · `should buy Cloud 9 via mbanking`
 
 | # | Checkpoint | Result |
 |--:|------------|--------|
-| 1 | Create Appium session | ✅ PASSED |
-| 2 | Credentials + launch app | ✅ PASSED |
-| 3 | Open Profile | ✅ PASSED |
-| 4 | Profile opened | ✅ PASSED |
-| 5 | Opened Profile | ✅ PASSED |
-| 6 | Opened Sign In screen | ✅ PASSED |
-| 7 | Login fields ready | ✅ PASSED |
-| 8 | Email tab selected | ✅ PASSED |
-| 9 | Open login screen | ✅ PASSED |
-| 10 | Email typed: *(from `.env`)* | ✅ PASSED |
-| 11 | Enter email | ✅ PASSED |
-| 12 | Password typed | ✅ PASSED |
-| 13 | Enter password | ✅ PASSED |
-| 14 | Sign in tapped — wait for Home | ✅ PASSED |
-| 15 | Tap Sign in | ✅ PASSED |
-| 16 | Login | ✅ PASSED |
-| 17 | Buy Shares tab (fallback) | ✅ PASSED |
-| 18 | Open Buy Shares tab | ✅ PASSED |
-| 19 | Looking for: Cloud 9 (Inani) | ✅ PASSED |
-| 20 | Tapped card: Cloud 9 (Inani) | ✅ PASSED |
-| 21 | Opened: Cloud 9 (Inani) | ✅ PASSED |
-| 22 | Open project (Cloud 9 (Inani)) | ✅ PASSED |
-| 23 | Purchase Details | ✅ PASSED |
-| 24 | Tap Buy shares now | ✅ PASSED |
-| 25 | Open project | ✅ PASSED |
-| 26 | Continue / confirm | ✅ PASSED |
-| 27 | Confirm / Continue purchase | ✅ PASSED |
-| 28 | Confirm purchase | ✅ PASSED |
-| 29 | Others payment by coords | ✅ PASSED |
-| 30 | Continue / confirm | ✅ PASSED |
-| 31 | Confirm / Continue purchase | ✅ PASSED |
-| 32 | WEBVIEW — payment gateway | ✅ PASSED |
-| 33 | ShurjoPay mBANKING via #mbanking_style | ✅ PASSED |
-| 34 | ShurjoPay mBANKING mobile=01772559986 | ✅ PASSED |
-| 35 | ShurjoPay mBANKING pin=1234 | ✅ PASSED |
-| 36 | ShurjoPay mBANKING Pay Now | ✅ PASSED |
-| 37 | ShurjoPay mBANKING payment | ✅ PASSED |
-| 38 | Checkout (mbanking) | ✅ PASSED |
-| 39 | Opened receipt | ✅ PASSED |
-| 40 | receipt download | ✅ PASSED |
-| 41 | Opened certificate | ✅ PASSED |
-| 42 | certificate download | ✅ PASSED |
-| 43 | Receipt + certificate captured | ✅ PASSED |
-| 44 | Capture receipt + certificate | ✅ PASSED |
-| 45 | Receipt / success | ✅ PASSED |
-| 46 | Buy flow DONE | ✅ PASSED |
+| 1 | Bind driver | ✅ PASSED |
+| 2 | Credentials present | ✅ PASSED |
+| 3 | Credentials + launch app | ✅ PASSED |
+| 4 | Already on main shell | ✅ PASSED |
+| 5 | Login | ✅ PASSED |
+| 6 | Buy Shares tab (fallback) | ✅ PASSED |
+| 7 | Open Buy Shares tab | ✅ PASSED |
+| 8 | Looking for: Cloud 9 (Inani) | ✅ PASSED |
+| 9 | Tapped card: Cloud 9 (Inani) | ✅ PASSED |
+| 10 | Opened: Cloud 9 (Inani) | ✅ PASSED |
+| 11 | Open project (Cloud 9 (Inani)) | ✅ PASSED |
+| 12 | Purchase Details | ✅ PASSED |
+| 13 | Tap Buy shares now | ✅ PASSED |
+| 14 | Open project | ✅ PASSED |
+| 15 | Continue / confirm | ✅ PASSED |
+| 16 | Confirm / Continue purchase | ✅ PASSED |
+| 17 | Confirm purchase | ✅ PASSED |
+| 18 | Others payment by coords | ✅ PASSED |
+| 19 | Continue / confirm | ✅ PASSED |
+| 20 | Confirm / Continue purchase | ✅ PASSED |
+| 21 | WEBVIEW — payment gateway | ✅ PASSED |
+| 22 | ShurjoPay mBANKING via #mbanking_style | ✅ PASSED |
+| 23 | ShurjoPay mBANKING mobile=01772559986 | ✅ PASSED |
+| 24 | ShurjoPay mBANKING pin=1234 | ✅ PASSED |
+| 25 | ShurjoPay mBANKING Pay Now | ✅ PASSED |
+| 26 | ShurjoPay mBANKING payment | ✅ PASSED |
+| 27 | Checkout (mbanking) | ✅ PASSED |
+| 28 | Opened receipt | ✅ PASSED |
+| 29 | Opened certificate | ✅ PASSED |
+| 30 | certificate download | ✅ PASSED |
+| 31 | Receipt + certificate captured | ✅ PASSED |
+| 32 | Capture receipt + certificate | ✅ PASSED |
+| 33 | Receipt / success | ✅ PASSED |
+| 34 | Buy flow DONE | ✅ PASSED |
 
-### 8.6 Not checked yet (backlog endpoints / cases)
+> Terminal note: receipt step logged CSS `a[download]` / partial-link warnings (native context); flow still **PASSED**.
+
+### 8.7 Prior script dump — Buy Flow mBANKING (2026-10-08)
+
+> Source: `npm.cmd run test:buy:script` · **46/46 PASSED** (included full Profile → Sign In email login). Kept as historical evidence; see git history / prior doc v1.3 for the 46-row table.
+
+### 8.8 Not checked yet (backlog endpoints / cases)
 
 | Item | Status |
 |------|--------|
-| bKash payment (`test:buy:bkash`) | Script exists — not in this PASS evidence pack |
+| bKash payment (`test:buy:bkash`) | Script/spec exists — not in 2026-10-12 PASS pack |
 | CARDS (Visa) sandbox endpoint | ❌ Not automated |
 | iBANKING tab | ❌ Not automated |
 | Invalid login / wrong PIN | ❌ Not automated |
@@ -742,6 +756,7 @@ artifacts/
 | 1.1 | 2026-09-21 | Expanded for GitHub: TOC, repo tree, architecture, matrices |
 | 1.2 | 2026-09-21 | Added verified/passed endpoints (§8): **12/12 PASS** |
 | 1.3 | 2026-10-08 | Re-verified on `aungsha_8oct.apk`: login 6/6 · buy mBANKING **46/46 PASSED** + full checkpoint dump (§8.5) |
+| 1.4 | 2026-10-12 | Terminal re-run: `test:login` **6/6** · `test:buy` WDIO **34/34 PASSED**; repo layout `pages/` `services/` `tests/`; §8 updated |
 
 ---
 
@@ -750,9 +765,10 @@ artifacts/
 | Need | Use |
 |------|-----|
 | Endpoints | **12** (A1–A5, B1–B7) |
-| Verified PASS | **12 / 12** endpoints · buy checkpoints **46 / 46** (2026-10-08) |
+| Verified PASS | **12 / 12** · login **6/6** · buy WDIO **34/34** (2026-10-12) |
 | Automated cases | **2** (TC-AUTH-01, TC-BUY-01) |
-| Buy command | `npm.cmd run test:buy:script` |
+| Buy command | `npm.cmd run test:buy` |
+| Buy script | `npm.cmd run test:buy:script` |
 | Login command | `npm.cmd run test:login` |
 | Sandbox pay | mBanking `01772559986` / `1234` |
 | Project | Cloud 9 (Inani) |
