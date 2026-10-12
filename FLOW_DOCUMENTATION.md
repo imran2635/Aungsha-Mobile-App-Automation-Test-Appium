@@ -14,7 +14,7 @@
 | **App version under test** | `aungsha_8oct.apk` (`apps/aungsha_8oct.apk`) |
 | **Automation stack** | Appium 2 · UiAutomator2 · WebdriverIO · Mocha |
 | **Primary device** | Emulator `emulator-5554` (AVD: `Aungsha_Emu`) |
-| **Document version** | `1.7` |
+| **Document version** | `1.8` |
 | **Last updated** | 2026-10-12 |
 
 ---
@@ -88,6 +88,15 @@ $env:MBANKING_PIN = "1234"
 npm.cmd run test:buy:fund:script
 ```
 
+### 9) Marketplace SurjoPay project buy + Invoice / Ownership Certificate
+
+```powershell
+cd e:\Aungsha-Mobile-App-Automation-Test
+$env:MBANKING_NUMBER = "01772559986"
+$env:MBANKING_PIN = "1234"
+npm.cmd run test:buy:marketplace:surjoypay
+```
+
 | Goal | Command |
 |------|---------|
 | Start Appium | `npm.cmd run appium` |
@@ -95,6 +104,7 @@ npm.cmd run test:buy:fund:script
 | Buy + receipt (script) | `npm.cmd run test:buy:script` |
 | Buy WDIO | `npm.cmd run test:buy` |
 | Fund-balance buy | `npm.cmd run test:buy:fund:script` |
+| Marketplace SurjoPay + Invoice/Ownership Cert | `npm.cmd run test:buy:marketplace:surjoypay` |
 | Receipt only | `npm.cmd run test:receipt` |
 | Withdraw (skip buy) | `npm.cmd run test:withdraw:script` |
 
@@ -256,9 +266,9 @@ Aungsha-Mobile-App-Automation-Test/
 
 | Metric | Count | Details |
 |--------|------:|---------|
-| Automated suites | **4** | Authentication · Project purchase · Fund-balance buy · Withdrawal |
-| Automated test cases | **4** | TC-AUTH-01 · TC-BUY-01 · TC-BUY-FUND-01 · TC-WITHDRAW-01 |
-| Documented UI flows | **4** | Login · Buy → mBanking · Wallet+SurjoPay · Fund → Withdraw |
+| Automated suites | **5** | Auth · Buy · Fund-balance buy · Marketplace SurjoPay · Withdrawal |
+| Automated test cases | **5** | TC-AUTH-01 · TC-BUY-01 · TC-BUY-FUND-01 · TC-BUY-MKT-01 · TC-WITHDRAW-01 |
+| Documented UI flows | **5** | Login · Buy · Wallet+SurjoPay · Marketplace+Invoice/Ownership · Withdraw |
 | UI / gateway endpoints | **17** | 5 auth + 7 buy/pay/docs + 5 withdraw |
 | **Endpoints verified PASS** | **17 / 17** (login **6/6** · buy **34/34** · withdraw **19/19**, 2026-10-12) | See [§8](#8-verified--passed-endpoints) |
 | Payment methods automated | **1** buy + **1** withdraw | Buy: mBANKING · Withdraw: **bKash** |
@@ -378,10 +388,11 @@ cd e:\Aungsha-Mobile-App-Test; npm.cmd run test:buy
 ## 8. Verified / passed endpoints
 
 > Latest evidence: **2026-10-12** on `emulator-5554` / AVD `Aungsha_Emu`.  
-> Commands: `test:login` · `test:buy` · `test:buy:fund:script` · `test:withdraw:script`  
+> Commands: `test:login` · `test:buy` · `test:buy:fund:script` · `test:buy:marketplace:surjoypay` · `test:withdraw:script`  
 > Login: **`RESULT: PASSED`** · **6 / 0**  
 > Buy WDIO: **`RESULT: PASSED`** · **34 / 0**  
-> Fund-balance buy: **`RESULT: PASSED — Fund Balance Project Buy`** · **37 PASSED / 0 FAILED**  
+> Fund-balance buy: **`RESULT: PASSED — Fund Balance Project Buy`** · **37 / 0**  
+> Marketplace SurjoPay: **`RESULT: PASSED — Marketplace SurjoPay Project Buy`** · **34 PASSED / 0 FAILED** (Invoice + Ownership Certificate)  
 > Withdraw: **`RESULT: PASSED — Withdrawal Flow`** · **19 / 0**  
 > Prior (2026-10-08): `test:buy:script` also **46/46 PASSED**.
 
@@ -393,6 +404,7 @@ cd e:\Aungsha-Mobile-App-Test; npm.cmd run test:buy
 | TC-BUY-01 (Buy + mBANKING + docs) | `test:buy` (WDIO) | 34 | **34** | 0 | 100% | 2026-10-12 |
 | TC-BUY-01 (script path) | `test:buy:script` | 46 | **46** | 0 | 100% | 2026-10-08 |
 | TC-BUY-FUND-01 (Wallet + SurjoPay) | `test:buy:fund:script` | 37 | **37** | 0 | 100% | 2026-10-12 |
+| TC-BUY-MKT-01 (Marketplace SurjoPay + Invoice/Ownership Cert) | `test:buy:marketplace:surjoypay` | 34 | **34** | 0 | 100% | 2026-10-12 |
 | TC-WITHDRAW-01 (Fund → bKash) | `test:withdraw:script` | 19 | **19** | 0 | 100% | 2026-10-12 |
 | Logical endpoints (A1–A5, B1–B7, W1–W5) | — | **17** | **17** | 0 | 100% | — |
 
@@ -637,9 +649,53 @@ cd e:\Aungsha-Mobile-App-Test; npm.cmd run test:buy
 | 36 | `Receipt / success` | ✅ PASSED |
 | 37 | `Buy flow DONE` | ✅ PASSED |
 
-### 8.11 Master list — all PASSED checkpoint names (terminal evidence)
+### 8.11 Full checkpoint dump — Marketplace SurjoPay Project Buy (2026-10-12) — names + PASSED
 
-> Combined from login **6** + buy WDIO **34** + fund-balance **37** + withdraw **19** + buy script **46** (names may repeat across runs).
+> Source: `npm.cmd run test:buy:marketplace:surjoypay` → `scripts/marketplace-surjoypay-project-buy.js`  
+> Env: `MBANKING_NUMBER=01772559986` · `MBANKING_PIN=1234` · no wallet  
+> Downloads: `apps/downloads/invoice.png` · `ownership-certificate.png` (aliases: receipt/certificate)  
+> **Total: 34 · PASSED: 34 · FAILED: 0** · `RESULT: PASSED — Marketplace SurjoPay Project Buy`
+
+| # | Checkpoint name | Status |
+|--:|-----------------|--------|
+| 1 | `Create Appium session` | ✅ PASSED |
+| 2 | `Credentials + launch app` | ✅ PASSED |
+| 3 | `Already on main shell` | ✅ PASSED |
+| 4 | `Login` | ✅ PASSED |
+| 5 | `Buy Shares tab (fallback)` | ✅ PASSED |
+| 6 | `Open Buy Shares tab` | ✅ PASSED |
+| 7 | `Looking for: Cloud 9 (Inani)` | ✅ PASSED |
+| 8 | `Tapped card: Cloud 9 (Inani)` | ✅ PASSED |
+| 9 | `Opened: Cloud 9 (Inani)` | ✅ PASSED |
+| 10 | `Open project (Cloud 9 (Inani))` | ✅ PASSED |
+| 11 | `Purchase Details` | ✅ PASSED |
+| 12 | `Tap Buy shares now` | ✅ PASSED |
+| 13 | `Open project` | ✅ PASSED |
+| 14 | `Continue / confirm` | ✅ PASSED |
+| 15 | `Confirm / Continue purchase` | ✅ PASSED |
+| 16 | `Confirm purchase` | ✅ PASSED |
+| 17 | `Others payment by coords` | ✅ PASSED |
+| 18 | `Continue / confirm` | ✅ PASSED |
+| 19 | `Confirm / Continue purchase` | ✅ PASSED |
+| 20 | `WEBVIEW — payment gateway` | ✅ PASSED |
+| 21 | `ShurjoPay mBANKING via #mbanking_style` | ✅ PASSED |
+| 22 | `ShurjoPay mBANKING mobile=01772559986` | ✅ PASSED |
+| 23 | `ShurjoPay mBANKING pin=1234` | ✅ PASSED |
+| 24 | `ShurjoPay mBANKING Pay Now` | ✅ PASSED |
+| 25 | `ShurjoPay mBANKING payment` | ✅ PASSED |
+| 26 | `Checkout (surjoypay)` | ✅ PASSED |
+| 27 | `Opened invoice` | ✅ PASSED |
+| 28 | `invoice download` | ✅ PASSED |
+| 29 | `Opened ownership-certificate` | ✅ PASSED |
+| 30 | `ownership-certificate download` | ✅ PASSED |
+| 31 | `Invoice + Ownership Certificate captured` | ✅ PASSED |
+| 32 | `Capture Invoice + Ownership Certificate` | ✅ PASSED |
+| 33 | `Receipt / success` | ✅ PASSED |
+| 34 | `Buy flow DONE` | ✅ PASSED |
+
+### 8.12 Master list — all PASSED checkpoint names (terminal evidence)
+
+> Combined from login **6** + buy WDIO **34** + fund-balance **37** + marketplace SurjoPay **34** + withdraw **19** + buy script **46** (names may repeat across runs).
 
 **Login (`test:login`)** — `Launch app` · `Credentials present in .env` · `Already on main shell` · `Ensure logged in (soft login)` · `Home shell loaded` · `Assert user is logged in`
 
@@ -647,11 +703,13 @@ cd e:\Aungsha-Mobile-App-Test; npm.cmd run test:buy
 
 **Fund-balance buy (`test:buy:fund:script`)** — `Create Appium session` · `Credentials + launch app` · `Already on main shell` · `Login` · `Buy Shares tab (fallback)` · `Open Buy Shares tab` · `Looking for: Cloud 9 (Inani)` · `Tapped card: Cloud 9 (Inani)` · `Opened: Cloud 9 (Inani)` · `Open project (Cloud 9 (Inani))` · `Purchase Details` · `Tap Buy shares now` · `Open project` · `Wallet forced type ৳500` · `Wallet ৳500 forced — continue checkout` · `Apply wallet ৳500` · `Continue / confirm` · `Confirm / Continue purchase` · `Confirm purchase` · `Others payment by coords` · `WEBVIEW — payment gateway` · `ShurjoPay mBANKING via #mbanking_style` · `ShurjoPay mBANKING mobile=01772559986` · `ShurjoPay mBANKING pin=1234` · `ShurjoPay mBANKING Pay Now` · `ShurjoPay mBANKING payment` · `Checkout (surjoypay)` · `Opened receipt` · `receipt download` · `Opened certificate` · `certificate download` · `Receipt + certificate captured` · `Capture receipt + certificate` · `Receipt / success` · `Buy flow DONE`
 
+**Marketplace SurjoPay (`test:buy:marketplace:surjoypay`)** — `Create Appium session` · `Credentials + launch app` · `Already on main shell` · `Login` · `Buy Shares tab (fallback)` · `Open Buy Shares tab` · `Looking for: Cloud 9 (Inani)` · `Tapped card: Cloud 9 (Inani)` · `Opened: Cloud 9 (Inani)` · `Open project (Cloud 9 (Inani))` · `Purchase Details` · `Tap Buy shares now` · `Open project` · `Continue / confirm` · `Confirm / Continue purchase` · `Confirm purchase` · `Others payment by coords` · `WEBVIEW — payment gateway` · `ShurjoPay mBANKING via #mbanking_style` · `ShurjoPay mBANKING mobile=01772559986` · `ShurjoPay mBANKING pin=1234` · `ShurjoPay mBANKING Pay Now` · `ShurjoPay mBANKING payment` · `Checkout (surjoypay)` · `Opened invoice` · `invoice download` · `Opened ownership-certificate` · `ownership-certificate download` · `Invoice + Ownership Certificate captured` · `Capture Invoice + Ownership Certificate` · `Receipt / success` · `Buy flow DONE`
+
 **Withdraw (`test:withdraw:script`)** — `Create Appium session` · `Skip buy — activate app` · `Home tab` · `Already on Fund / wallet` · `Open Fund / wallet` · `Withdraw CTA (Fund screen)` · `Tap Withdraw CTA` · `Home → Fund → Withdraw` · `Wait Withdraw screen` · `bKash toggle 01772559986` · `Select bKash 01772559986` · `Continue to Amount` · `Withdraw amount ৳500` · `Enter amount ৳500` · `Submit Withdrawal` · `bKash withdraw ৳500` · `Withdraw flow DONE`
 
 **Buy script (`test:buy:script`, full login)** — `Create Appium session` · `Credentials + launch app` · `Open Profile` · `Profile opened` · `Opened Profile` · `Opened Sign In screen` · `Login fields ready` · `Email tab selected` · `Open login screen` · `Email typed` · `Enter email` · `Password typed` · `Enter password` · `Sign in tapped — wait for Home` · `Tap Sign in` · `Login` · *(then same buy/pay/docs path as WDIO through)* `Buy flow DONE` · plus `receipt download`
 
-### 8.12 Not checked yet (backlog endpoints / cases)
+### 8.13 Not checked yet (backlog endpoints / cases)
 
 | Item | Status |
 |------|--------|
@@ -702,7 +760,7 @@ flowchart TD
 
 ## 10. Test cases
 
-### 10.1 Implemented (automation) — 4 cases
+### 10.1 Implemented (automation) — 5 cases
 
 #### TC-AUTH-01 — Valid email login
 
@@ -743,6 +801,20 @@ flowchart TD
 | **Steps** | Login → Buy Shares → Cloud 9 → Buy shares now → apply wallet ৳500 → Continue → Others → ShurjoPay mBANKING → Receipt + Certificate |
 | **Expected** | `RESULT: PASSED — Fund Balance Project Buy` · **37/37** checkpoints (2026-10-12) |
 | **Data** | Wallet `500` · mBANKING sandbox |
+
+#### TC-BUY-MKT-01 — Marketplace SurjoPay buy + Invoice / Ownership Certificate
+
+| Field | Value |
+|-------|-------|
+| **ID** | TC-BUY-MKT-01 |
+| **Priority** | P0 |
+| **Type** | Positive E2E |
+| **Script** | `scripts/marketplace-surjoypay-project-buy.js` (`npm.cmd run test:buy:marketplace:surjoypay`) |
+| **Precondition** | Emulator + Appium; logged-in; Cloud 9 buyable |
+| **Env** | `MBANKING_NUMBER=01772559986` · `MBANKING_PIN=1234` (no `WALLET_AMOUNT`) |
+| **Steps** | Buy Shares → Cloud 9 → Continue → Others → ShurjoPay mBANKING → open Invoice → download → open Ownership Certificate → download |
+| **Expected** | `RESULT: PASSED — Marketplace SurjoPay Project Buy` · **34/34** checkpoints (2026-10-12) |
+| **Artifacts** | `apps/downloads/invoice.png` · `ownership-certificate.png` |
 
 #### TC-WITHDRAW-01 — Fund → Withdraw ৳500 via bKash
 
@@ -968,6 +1040,7 @@ artifacts/
 | 1.5 | 2026-10-12 | Withdraw terminal PASS: `test:withdraw:script` **19/19** (SKIP_BUY); TC-WITHDRAW-01 + §8.7–8.8 |
 | 1.6 | 2026-10-12 | All PASSED checkpoint **names** listed: login 6 · buy WDIO 34 · withdraw 19 · buy script 46 + master list §8.10 |
 | 1.7 | 2026-10-12 | Fund-balance buy **37/37 PASSED** (`test:buy:fund:script`); TC-BUY-FUND-01 + §8.10 checkpoint names |
+| 1.8 | 2026-10-12 | Marketplace SurjoPay **34/34 PASSED** + Invoice/Ownership Cert; TC-BUY-MKT-01 + §8.11 all checkpoint names |
 
 ---
 
@@ -976,14 +1049,16 @@ artifacts/
 | Need | Use |
 |------|-----|
 | Endpoints | **17** (A1–A5, B1–B7, W1–W5) |
-| Verified PASS | login **6/6** · buy **34/34** · fund-buy **37/37** · withdraw **19/19** (2026-10-12) |
-| Automated cases | **4** (TC-AUTH-01, TC-BUY-01, TC-BUY-FUND-01, TC-WITHDRAW-01) |
+| Verified PASS | login **6/6** · buy **34/34** · fund **37/37** · marketplace **34/34** · withdraw **19/19** |
+| Automated cases | **5** (AUTH, BUY, BUY-FUND, BUY-MKT, WITHDRAW) |
 | Buy command | `npm.cmd run test:buy` |
 | Buy script | `npm.cmd run test:buy:script` |
 | Fund-balance buy | `npm.cmd run test:buy:fund:script` |
+| Marketplace SurjoPay | `npm.cmd run test:buy:marketplace:surjoypay` |
 | Login command | `npm.cmd run test:login` |
 | Withdraw | `npm.cmd run test:withdraw:script` (`SKIP_BUY=1`) |
 | Sandbox pay | mBanking `01772559986` / `1234` |
 | Wallet amount | ৳`500` (`WALLET_AMOUNT`) |
+| Docs download | `apps/downloads/invoice.png` · `ownership-certificate.png` |
 | Withdraw bKash | `01772559986` · ৳`500` |
 | Project | Cloud 9 (Inani) |

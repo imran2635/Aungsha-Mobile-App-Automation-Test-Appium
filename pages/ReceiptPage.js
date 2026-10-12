@@ -9,8 +9,24 @@ class ReceiptPage extends BasePage {
   constructor(driver) {
     super(driver);
 
-    this.viewReceipt = ['//*[contains(@content-desc,"View Receipt")]'];
-    this.viewCertificate = ['//*[contains(@content-desc,"View Share Certificate")]'];
+    /** Invoice / receipt entry on success screen */
+    this.viewReceipt = [
+      '//*[contains(@content-desc,"View Invoice")]',
+      '//*[contains(@content-desc,"Invoice")]',
+      '//*[contains(@content-desc,"View Receipt")]',
+      '~View Invoice',
+      '~View Receipt',
+      '~Invoice',
+    ];
+    /** Ownership / share certificate entry */
+    this.viewCertificate = [
+      '//*[contains(@content-desc,"Ownership Certificate")]',
+      '//*[contains(@content-desc,"View Ownership")]',
+      '//*[contains(@content-desc,"View Share Certificate")]',
+      '//*[contains(@content-desc,"Share Certificate")]',
+      '~Ownership Certificate',
+      '~View Share Certificate',
+    ];
     this.downloadActions = [
       '//*[contains(@content-desc,"Download") or contains(@text,"Download")]',
       '//*[contains(@content-desc,"Save") or contains(@text,"Save")]',
@@ -19,8 +35,8 @@ class ReceiptPage extends BasePage {
       '*=Download',
     ];
     this.successMarkers = [
-      '//*[contains(@content-desc,"View Receipt")]',
-      '//*[contains(@content-desc,"View Share Certificate")]',
+      ...this.viewReceipt,
+      ...this.viewCertificate,
       '//*[contains(@content-desc,"Share Purchased") or contains(@text,"Share Purchased")]',
       '~Success',
       '~Payment Successful',
@@ -97,20 +113,27 @@ class ReceiptPage extends BasePage {
   }
 
   async captureReceiptAndCertificate() {
-    await this.check('Capture receipt + certificate', async () => {
+    await this.check('Capture Invoice + Ownership Certificate', async () => {
       await this.driver.waitUntil(async () => this.isVisible(this.viewReceipt, 1500), {
         timeout: 90000,
-        timeoutMsg: 'View Receipt not shown after payment',
+        timeoutMsg: 'Invoice / View Receipt not shown after payment',
       });
-      await this.openDownloadable(this.viewReceipt, 'receipt');
+      // Prefer Invoice naming for downloads; also keep receipt.png alias via openDownloadable
+      await this.openDownloadable(this.viewReceipt, 'invoice');
+      await this.driver
+        .saveScreenshot(path.join(process.cwd(), 'apps', 'downloads', 'receipt.png'))
+        .catch(() => {});
       if (!(await this.isVisible(this.viewCertificate, 2000))) {
         for (let i = 0; i < 4; i += 1) {
           await this.driver.back();
           if (await this.isVisible(this.viewCertificate, 1000)) break;
         }
       }
-      await this.openDownloadable(this.viewCertificate, 'certificate');
-      await this.show('Receipt + certificate captured');
+      await this.openDownloadable(this.viewCertificate, 'ownership-certificate');
+      await this.driver
+        .saveScreenshot(path.join(process.cwd(), 'apps', 'downloads', 'certificate.png'))
+        .catch(() => {});
+      await this.show('Invoice + Ownership Certificate captured');
     });
   }
 }
