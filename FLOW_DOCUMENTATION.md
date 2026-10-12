@@ -14,7 +14,7 @@
 | **App version under test** | `aungsha_8oct.apk` (`apps/aungsha_8oct.apk`) |
 | **Automation stack** | Appium 2 · UiAutomator2 · WebdriverIO · Mocha |
 | **Primary device** | Emulator `emulator-5554` (AVD: `Aungsha_Emu`) |
-| **Document version** | `1.4` |
+| **Document version** | `1.5` |
 | **Last updated** | 2026-10-12 |
 
 ---
@@ -68,6 +68,16 @@ cd e:\Aungsha-Mobile-App-Automation-Test
 npm.cmd run test:receipt
 ```
 
+### 7) Withdrawal (Fund → bKash, skip buy)
+
+```powershell
+cd e:\Aungsha-Mobile-App-Automation-Test
+$env:SKIP_BUY = "1"
+$env:WITHDRAW_BKASH_NUMBER = "01772559986"
+$env:WITHDRAW_AMOUNT = "500"
+npm.cmd run test:withdraw:script
+```
+
 | Goal | Command |
 |------|---------|
 | Start Appium | `npm.cmd run appium` |
@@ -75,6 +85,7 @@ npm.cmd run test:receipt
 | Buy + receipt (script) | `npm.cmd run test:buy:script` |
 | Buy WDIO | `npm.cmd run test:buy` |
 | Receipt only | `npm.cmd run test:receipt` |
+| Withdraw (skip buy) | `npm.cmd run test:withdraw:script` |
 
 ---
 
@@ -234,12 +245,12 @@ Aungsha-Mobile-App-Automation-Test/
 
 | Metric | Count | Details |
 |--------|------:|---------|
-| Automated suites | **2** | Authentication · Project purchase |
-| Automated test cases | **2** | TC-AUTH-01 · TC-BUY-01 |
-| Documented UI flows | **2** | Login · Buy → mBanking → docs |
-| UI / gateway endpoints | **12** | 5 auth + 7 buy/pay/docs |
-| **Endpoints verified PASS** | **12 / 12** (login **6/6** · buy WDIO **34/34**, 2026-10-12) | See [§8](#8-verified--passed-endpoints) |
-| Payment methods automated | **1** | Others → ShurjoPay → **mBANKING** |
+| Automated suites | **3** | Authentication · Project purchase · Withdrawal |
+| Automated test cases | **3** | TC-AUTH-01 · TC-BUY-01 · TC-WITHDRAW-01 |
+| Documented UI flows | **3** | Login · Buy → mBanking → docs · Fund → Withdraw |
+| UI / gateway endpoints | **17** | 5 auth + 7 buy/pay/docs + 5 withdraw |
+| **Endpoints verified PASS** | **17 / 17** (login **6/6** · buy **34/34** · withdraw **19/19**, 2026-10-12) | See [§8](#8-verified--passed-endpoints) |
+| Payment methods automated | **1** buy + **1** withdraw | Buy: mBANKING · Withdraw: **bKash** |
 | Projects exercised | **1** | **Cloud 9 (Inani)** |
 | Backlog cases (recommended) | **6** | See §10.2 |
 
@@ -356,10 +367,11 @@ cd e:\Aungsha-Mobile-App-Test; npm.cmd run test:buy
 ## 8. Verified / passed endpoints
 
 > Latest evidence: **2026-10-12** on `emulator-5554` / AVD `Aungsha_Emu`.  
-> Commands: `npm.cmd run test:login` · `npm.cmd run test:buy` (`tests/buy-flow.test.js`)  
-> Login: **`RESULT: PASSED`** · **6 PASSED / 0 FAILED** · ~25s  
-> Buy WDIO: **`RESULT: PASSED`** · **34 PASSED / 0 FAILED** · ~2m 20s · exit `0`  
-> Prior (2026-10-08): `test:buy:script` also **46/46 PASSED** (full email login path).
+> Commands: `test:login` · `test:buy` · `test:withdraw:script` (`SKIP_BUY=1`)  
+> Login: **`RESULT: PASSED`** · **6 / 0** · ~25s  
+> Buy WDIO: **`RESULT: PASSED`** · **34 / 0** · ~2m 20s  
+> Withdraw: **`RESULT: PASSED — Withdrawal Flow`** · **19 PASSED / 0 FAILED** · exit `0`  
+> Prior (2026-10-08): `test:buy:script` also **46/46 PASSED**.
 
 ### 8.1 Summary
 
@@ -368,7 +380,8 @@ cd e:\Aungsha-Mobile-App-Test; npm.cmd run test:buy
 | TC-AUTH-01 (Login) | `test:login` | 6 | **6** | 0 | 100% | 2026-10-12 |
 | TC-BUY-01 (Buy + mBANKING + docs) | `test:buy` (WDIO) | 34 | **34** | 0 | 100% | 2026-10-12 |
 | TC-BUY-01 (script path) | `test:buy:script` | 46 | **46** | 0 | 100% | 2026-10-08 |
-| Logical endpoints (A1–A5, B1–B7) | both | **12** | **12** | 0 | 100% | — |
+| TC-WITHDRAW-01 (Fund → bKash) | `test:withdraw:script` | 19 | **19** | 0 | 100% | 2026-10-12 |
+| Logical endpoints (A1–A5, B1–B7, W1–W5) | — | **17** | **17** | 0 | 100% | — |
 
 ### 8.2 Authentication — passed checklist
 
@@ -466,20 +479,57 @@ Same table as §8.2 soft path (rows 1–6).
 
 > Terminal note: receipt step logged CSS `a[download]` / partial-link warnings (native context); flow still **PASSED**.
 
-### 8.7 Prior script dump — Buy Flow mBANKING (2026-10-08)
+### 8.7 Withdraw — Fund → bKash (passed checklist)
 
-> Source: `npm.cmd run test:buy:script` · **46/46 PASSED** (included full Profile → Sign In email login). Kept as historical evidence; see git history / prior doc v1.3 for the 46-row table.
+| ID | Endpoint | Checked by | Result | Evidence (2026-10-12) |
+|----|----------|------------|--------|------------------------|
+| **W1** | Skip buy / activate app | `WithdrawFlowComponent` + `SKIP_BUY=1` | ✅ PASS | `[PASSED] Skip buy — activate app` |
+| **W2** | Home → Fund / wallet | `HomePage.openFund` | ✅ PASS | `[PASSED] Home tab` · `Already on Fund / wallet` · `Open Fund / wallet` |
+| **W3** | Fund Withdraw CTA | ImageView / clickable Withdraw | ✅ PASS | `[PASSED] Withdraw CTA (Fund screen)` · `Tap Withdraw CTA` |
+| **W4** | bKash number + Continue | `WithdrawPage` | ✅ PASS | `[PASSED] Select bKash 01772559986` · `Continue to Amount` |
+| **W5** | Amount ৳500 + Submit | `WithdrawPage` | ✅ PASS | `[PASSED] Enter amount ৳500` · `Submit Withdrawal` · `Withdraw flow DONE` |
 
-### 8.8 Not checked yet (backlog endpoints / cases)
+### 8.8 Full checkpoint dump — Withdrawal Flow (2026-10-12)
+
+> Source: `npm.cmd run test:withdraw:script` · env `SKIP_BUY=1` · `WITHDRAW_BKASH_NUMBER=01772559986` · `WITHDRAW_AMOUNT=500`  
+> **Total: 19 · PASSED: 19 · FAILED: 0** · `RESULT: PASSED — Withdrawal Flow`  
+> Note: earlier same-day attempt failed (`instrumentation` / Home shell); cold boot then **PASSED**.
+
+| # | Checkpoint | Result |
+|--:|------------|--------|
+| 1 | Create Appium session | ✅ PASSED |
+| 2 | Skip buy — activate app | ✅ PASSED |
+| 3 | Home tab | ✅ PASSED |
+| 4 | Already on Fund / wallet | ✅ PASSED |
+| 5 | Open Fund / wallet | ✅ PASSED |
+| 6 | Withdraw CTA (Fund screen) | ✅ PASSED |
+| 7 | Tap Withdraw CTA | ✅ PASSED |
+| 8 | Home → Fund → Withdraw | ✅ PASSED |
+| 9 | Wait Withdraw screen | ✅ PASSED |
+| 10 | bKash toggle 01772559986 | ✅ PASSED |
+| 11 | Select bKash 01772559986 | ✅ PASSED |
+| 12 | Continue to Amount | ✅ PASSED |
+| 13 | Continue to Amount | ✅ PASSED |
+| 14 | Withdraw amount ৳500 | ✅ PASSED |
+| 15 | Enter amount ৳500 | ✅ PASSED |
+| 16 | Submit Withdrawal | ✅ PASSED |
+| 17 | Submit Withdrawal | ✅ PASSED |
+| 18 | bKash withdraw ৳500 | ✅ PASSED |
+| 19 | Withdraw flow DONE | ✅ PASSED |
+
+### 8.9 Prior script dump — Buy Flow mBANKING (2026-10-08)
+
+> Source: `npm.cmd run test:buy:script` · **46/46 PASSED** (full Profile → Sign In path). Historical; see doc v1.3.
+
+### 8.10 Not checked yet (backlog endpoints / cases)
 
 | Item | Status |
 |------|--------|
-| bKash payment (`test:buy:bkash`) | Script/spec exists — not in 2026-10-12 PASS pack |
+| bKash **buy** payment (`test:buy:bkash`) | Spec/script exists — not in PASS pack |
 | CARDS (Visa) sandbox endpoint | ❌ Not automated |
 | iBANKING tab | ❌ Not automated |
 | Invalid login / wrong PIN | ❌ Not automated |
 | Phone login | ❌ Not automated |
-| Fund → Withdraw | Automated separately (`test:withdraw:script`) — not in this buy run |
 
 ---
 
@@ -522,7 +572,7 @@ flowchart TD
 
 ## 10. Test cases
 
-### 10.1 Implemented (automation) — 2 cases
+### 10.1 Implemented (automation) — 3 cases
 
 #### TC-AUTH-01 — Valid email login
 
@@ -535,7 +585,7 @@ flowchart TD
 | **Precondition** | App installed; emulator up; Appium up; valid `.env` credentials |
 | **Steps** | Launch → (Sign out if needed) → Profile → Sign In → Email → Password → Sign in |
 | **Expected** | Home shell visible; `isLoggedIn() === true` |
-| **Data** | §10.2 |
+| **Data** | §11 login data |
 
 #### TC-BUY-01 — Buy Cloud 9 via mBanking sandbox + docs
 
@@ -547,8 +597,22 @@ flowchart TD
 | **Spec / script** | `tests/buy-flow.test.js` → `scripts/project-buy-flow.js` |
 | **Precondition** | Logged-in session (or home shell); Cloud 9 buyable; sandbox payment on |
 | **Steps** | Buy Shares → Cloud 9 → Buy shares now → Continue → Others → Continue → mBANKING → Pay → Receipt + Certificate |
-| **Expected** | Console: `BUY_FLOW_OK`, `RECEIPT_CERT_OK`; exit code `0` |
-| **Data** | §10.3 |
+| **Expected** | Checkpoints PASS; exit code `0` |
+| **Data** | §11 buy data |
+
+#### TC-WITHDRAW-01 — Fund → Withdraw ৳500 via bKash
+
+| Field | Value |
+|-------|-------|
+| **ID** | TC-WITHDRAW-01 |
+| **Priority** | P0 |
+| **Type** | Positive E2E |
+| **Script** | `scripts/withdrawal-flow.js` (`npm.cmd run test:withdraw:script`) |
+| **Precondition** | Emulator + Appium; logged-in / home shell; wallet has withdrawable balance |
+| **Env** | `SKIP_BUY=1` · `WITHDRAW_BKASH_NUMBER=01772559986` · `WITHDRAW_AMOUNT=500` |
+| **Steps** | Activate app → Home → Fund → Withdraw CTA → select bKash → Continue → enter 500 → Submit Withdrawal |
+| **Expected** | `RESULT: PASSED — Withdrawal Flow` · **19/19** checkpoints (2026-10-12) |
+| **Data** | Withdraw bKash `01772559986` · amount `500` |
 
 ### 10.2 Recommended backlog — 6 cases
 
@@ -757,6 +821,7 @@ artifacts/
 | 1.2 | 2026-09-21 | Added verified/passed endpoints (§8): **12/12 PASS** |
 | 1.3 | 2026-10-08 | Re-verified on `aungsha_8oct.apk`: login 6/6 · buy mBANKING **46/46 PASSED** + full checkpoint dump (§8.5) |
 | 1.4 | 2026-10-12 | Terminal re-run: `test:login` **6/6** · `test:buy` WDIO **34/34 PASSED**; repo layout `pages/` `services/` `tests/`; §8 updated |
+| 1.5 | 2026-10-12 | Withdraw terminal PASS: `test:withdraw:script` **19/19** (SKIP_BUY); TC-WITHDRAW-01 + §8.7–8.8 |
 
 ---
 
@@ -764,11 +829,13 @@ artifacts/
 
 | Need | Use |
 |------|-----|
-| Endpoints | **12** (A1–A5, B1–B7) |
-| Verified PASS | **12 / 12** · login **6/6** · buy WDIO **34/34** (2026-10-12) |
-| Automated cases | **2** (TC-AUTH-01, TC-BUY-01) |
+| Endpoints | **17** (A1–A5, B1–B7, W1–W5) |
+| Verified PASS | login **6/6** · buy **34/34** · withdraw **19/19** (2026-10-12) |
+| Automated cases | **3** (TC-AUTH-01, TC-BUY-01, TC-WITHDRAW-01) |
 | Buy command | `npm.cmd run test:buy` |
 | Buy script | `npm.cmd run test:buy:script` |
 | Login command | `npm.cmd run test:login` |
+| Withdraw | `npm.cmd run test:withdraw:script` (`SKIP_BUY=1`) |
 | Sandbox pay | mBanking `01772559986` / `1234` |
+| Withdraw bKash | `01772559986` · ৳`500` |
 | Project | Cloud 9 (Inani) |
