@@ -57,6 +57,19 @@ class ProjectBuyPage extends BasePage {
       '//*[contains(@content-desc,"Use Max")]',
       '//*[contains(@content-desc,"Wallet") and contains(@content-desc,"Available")]',
       '//*[contains(@content-desc,"Max applicable")]',
+      '//*[contains(@content-desc,"Apply") and not(contains(@content-desc,"referral"))]',
+      '~Apply',
+    ];
+    this.referralMarkers = [
+      '//*[contains(@content-desc,"referral")]',
+      '//*[contains(@content-desc,"Have a referral")]',
+      '//*[contains(@content-desc,"Invalid referral")]',
+    ];
+    this.dismissButtons = [
+      '~Dismiss',
+      '//*[@content-desc="Dismiss"]',
+      '~OK',
+      '//*[@content-desc="OK"]',
     ];
     this.walletAmountField = [
       '//android.widget.EditText[contains(@text,"৳") or contains(@text,"TK") or @text!=""]',
@@ -229,21 +242,10 @@ class ProjectBuyPage extends BasePage {
         .catch(async () => this.scroll('up', 0.6));
     }
     if (!found) {
-      // Force coords anyway (wallet field zone from known Purchase Details layout)
-      await this.show(`Wallet UI not labeled — force coords ৳${want}`);
-      await this.tapAt(450, 1470);
-      await this.driver.pause(400);
-      try {
-        await this.driver.execute('mobile: type', { text: want });
-      } catch {
-        await this.driver.keys(want.split(''));
-      }
-      await this.driver.pause(500);
-      if (await this.isVisible(['//*[contains(@content-desc,"Total payable")]'], 1500)) {
-        await this.tap(['//*[contains(@content-desc,"Total payable")]']).catch(() => {});
-      }
-      await this.show(`Wallet coords forced ৳${want}`);
-      return true;
+      // Blind-typing hits Referral and causes "Invalid referral code" — skip.
+      await this.show('Wallet section not found — skip blind type (avoid referral)');
+      await this.dismissReferralIfShown();
+      return false;
     }
 
     // Prefer EditText nearest Use Max
@@ -306,13 +308,8 @@ class ProjectBuyPage extends BasePage {
       }
       await this.show(`Wallet forced type ৳${want}`);
     } else {
-      // Absolute force: tap typical wallet field zone then type
-      await this.tapAt(450, 1470);
-      await this.driver.pause(400);
-      await this.driver.execute('mobile: type', { text: want }).catch(async () => {
-        await this.driver.keys(want.split(''));
-      });
-      await this.show(`Wallet forced coords type ৳${want}`);
+      await this.show('No wallet EditText — skip type (avoid referral field)');
+      return false;
     }
 
     // Blur / commit — tap Total payable or wallet header (not Back)
@@ -346,16 +343,28 @@ class ProjectBuyPage extends BasePage {
     return true;
   }
 
+  async dismissReferralIfShown() {
+    if (await this.isVisible(this.referralMarkers, 1200) || await this.isVisible(this.dismissButtons, 800)) {
+      if (await this.isVisible(this.dismissButtons, 1500)) {
+        await this.tap(this.dismissButtons, 3000);
+        await this.show('Dismissed referral / blocking dialog');
+      }
+    }
+  }
+
   async confirmPurchase() {
     await this.check('Confirm / Continue purchase', async () => {
+      await this.dismissReferralIfShown();
       for (let i = 0; i < 4; i += 1) {
         if (await this.isVisible(this.confirmButtons, 3000)) {
           await this.tap(this.confirmButtons);
           await this.show('Continue / confirm');
+          await this.dismissReferralIfShown();
           return;
         }
         await this.tapAt(540, 2290);
         await this.driver.pause(800);
+        await this.dismissReferralIfShown();
       }
       await this.show('Continue forced coords');
     });
