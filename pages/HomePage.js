@@ -32,6 +32,13 @@ class HomePage extends BasePage {
       '//*[(@content-desc="Withdraw") or (contains(@content-desc,"Withdraw") and not(contains(@content-desc,"Submit")))]',
     ];
     this.homeTab = ['~Home', '//*[@content-desc="Home"]'];
+    this.supportEntry = [
+      '~Support',
+      '//*[@content-desc="Support"]',
+      '//*[contains(@content-desc,"Support")]',
+      '//*[contains(@content-desc,"Customer Support")]',
+      '//*[contains(@content-desc,"Help & Support")]',
+    ];
     this.fundEntry = [
       '~Fund',
       '//*[@content-desc="Fund"]',

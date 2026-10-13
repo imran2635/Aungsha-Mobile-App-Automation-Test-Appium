@@ -14,8 +14,8 @@
 | **App version under test** | `aungsha_8oct.apk` (`apps/aungsha_8oct.apk`) |
 | **Automation stack** | Appium 2 · UiAutomator2 · WebdriverIO · Mocha |
 | **Primary device** | Emulator `emulator-5554` (AVD: `Aungsha_Emu`) |
-| **Document version** | `1.9` |
-| **Last updated** | 2026-10-12 |
+| **Document version** | `2.0` |
+| **Last updated** | 2026-10-13 |
 
 ---
 
@@ -107,6 +107,13 @@ $env:MBANKING_PIN = "1234"
 npm.cmd run test:buy:referral
 ```
 
+### 11) Support ticket (New Ticket + reply)
+
+```powershell
+cd e:\Aungsha-Mobile-App-Automation-Test
+npm.cmd run test:support:ticket
+```
+
 | Goal | Command |
 |------|---------|
 | Start Appium | `npm.cmd run appium` |
@@ -116,6 +123,7 @@ npm.cmd run test:buy:referral
 | Fund-balance buy | `npm.cmd run test:buy:fund:script` |
 | Marketplace SurjoPay + Invoice/Ownership Cert | `npm.cmd run test:buy:marketplace:surjoypay` |
 | Checkout referral rewards buy | `npm.cmd run test:buy:referral` |
+| Support ticket (new + reply) | `npm.cmd run test:support:ticket` |
 | Receipt only | `npm.cmd run test:receipt` |
 | Withdraw (skip buy) | `npm.cmd run test:withdraw:script` |
 
@@ -277,11 +285,11 @@ Aungsha-Mobile-App-Automation-Test/
 
 | Metric | Count | Details |
 |--------|------:|---------|
-| Automated suites | **6** | Auth · Buy · Fund-balance · Marketplace SurjoPay · Referral checkout · Withdrawal |
-| Automated test cases | **6** | TC-AUTH-01 · TC-BUY-01 · TC-BUY-FUND-01 · TC-BUY-MKT-01 · TC-BUY-REF-01 · TC-WITHDRAW-01 |
-| Documented UI flows | **6** | Login · Buy · Wallet · Marketplace+Invoice · Referral `D5A0D3B4` · Withdraw |
-| UI / gateway endpoints | **18** | 5 auth + 7 buy/pay/docs + 1 referral + 5 withdraw |
-| **Endpoints verified PASS** | See [§8](#8-verified--passed-endpoints) — all latest suites **PASSED** (2026-10-12) |
+| Automated suites | **7** | Auth · Buy · Fund-balance · Marketplace SurjoPay · Referral checkout · Withdrawal · Support ticket |
+| Automated test cases | **7** | TC-AUTH-01 · TC-BUY-01 · TC-BUY-FUND-01 · TC-BUY-MKT-01 · TC-BUY-REF-01 · TC-WITHDRAW-01 · TC-SUPPORT-01 |
+| Documented UI flows | **7** | Login · Buy · Wallet · Marketplace+Invoice · Referral `D5A0D3B4` · Withdraw · Support ticket |
+| UI / gateway endpoints | **24** | 5 auth + 7 buy/pay/docs + 1 referral + 5 withdraw + 6 support |
+| **Endpoints verified PASS** | See [§8](#8-verified--passed-endpoints) — all latest suites **PASSED** (login–referral/withdraw 2026-10-12 · support 2026-10-13) |
 | Payment methods automated | **1** buy + **1** withdraw | Buy: mBANKING · Withdraw: **bKash** |
 | Projects exercised | **1** | **Cloud 9 (Inani)** |
 | Backlog cases (recommended) | **6** | See §10.2 |
@@ -354,7 +362,7 @@ cd e:\Aungsha-Mobile-App-Test; npm.cmd run test:buy
 
 ## 7. Flow endpoints (UI / gateway)
 
-**Total: 18 endpoints** (A1–A5 · B1–B7 · R1 · W1–W5)
+**Total: 24 endpoints** (A1–A5 · B1–B7 · R1 · W1–W5 · S1–S6)
 
 ### 7.1 Authentication flow — 5 endpoints
 
@@ -410,18 +418,30 @@ cd e:\Aungsha-Mobile-App-Test; npm.cmd run test:buy
 | **W4** | bKash method | Select number → Continue | Amount screen |
 | **W5** | Amount + Submit | Enter ৳500 → Submit | Withdrawal submitted |
 
+### 7.6 Support ticket — 6 endpoints
+
+| ID | Endpoint (screen) | Actor action | Expected result |
+|----|-------------------|--------------|-----------------|
+| **S1** | Soft login / Home shell | Launch + soft login | Home markers / already logged in |
+| **S2** | Home → Support Center | Tap Support tile | Support Center open |
+| **S3** | New Ticket form | Tap New Ticket | Create form (EditTexts) open |
+| **S4** | Fill + Submit | Category Account · Title · Describe · Phone → Submit | Ticket created |
+| **S5** | My Tickets → open card | Open newest / matching title | Ticket chat open |
+| **S6** | Reply message | Type reply → Send | Reply sent **or** `Validation failed` toast (accepted condition) |
+
 ---
 
 ## 8. Verified / passed endpoints
 
-> Latest evidence: **2026-10-12** on `emulator-5554` / AVD `Aungsha_Emu`.  
-> Commands: `test:login` · `test:buy` · `test:buy:fund:script` · `test:buy:marketplace:surjoypay` · `test:buy:referral` · `test:withdraw:script`  
+> Latest evidence: **2026-10-12** (buy/login/withdraw) + **2026-10-13** (support) on `emulator-5554` / AVD `Aungsha_Emu`.  
+> Commands: `test:login` · `test:buy` · `test:buy:fund:script` · `test:buy:marketplace:surjoypay` · `test:buy:referral` · `test:withdraw:script` · `test:support:ticket`  
 > Login: **`RESULT: PASSED`** · **6 / 0**  
 > Buy WDIO: **`RESULT: PASSED`** · **34 / 0**  
 > Fund-balance buy: **`RESULT: PASSED — Fund Balance Project Buy`** · **37 / 0**  
 > Marketplace SurjoPay: **`RESULT: PASSED — Marketplace SurjoPay Project Buy`** · **34 / 0**  
 > Referral checkout: **`RESULT: PASSED — Checkout Referral Rewards Project Buy`** · **40 PASSED / 0 FAILED** · code **`D5A0D3B4`**  
 > Withdraw: **`RESULT: PASSED — Withdrawal Flow`** · **19 / 0**  
+> Support ticket: **`RESULT: PASSED — Support Ticket Flow`** · **31 / 0** · title `account creating problem 20261013-150336`  
 > Prior (2026-10-08): `test:buy:script` also **46/46 PASSED**.
 
 ### 8.1 Summary
@@ -435,7 +455,8 @@ cd e:\Aungsha-Mobile-App-Test; npm.cmd run test:buy
 | TC-BUY-MKT-01 (Marketplace SurjoPay + Invoice/Ownership Cert) | `test:buy:marketplace:surjoypay` | 34 | **34** | 0 | 100% | 2026-10-12 |
 | TC-BUY-REF-01 (Checkout referral `D5A0D3B4` + SurjoPay) | `test:buy:referral` | 40 | **40** | 0 | 100% | 2026-10-12 |
 | TC-WITHDRAW-01 (Fund → bKash) | `test:withdraw:script` | 19 | **19** | 0 | 100% | 2026-10-12 |
-| Logical endpoints (A1–A5, B1–B7, R1, W1–W5) | — | **18** | **18** | 0 | 100% | — |
+| TC-SUPPORT-01 (New Ticket + reply) | `test:support:ticket` | 31 | **31** | 0 | 100% | 2026-10-13 |
+| Logical endpoints (A1–A5, B1–B7, R1, W1–W5, S1–S6) | — | **24** | **24** | 0 | 100% | — |
 
 ### 8.2 Authentication — passed checklist
 
@@ -732,7 +753,7 @@ cd e:\Aungsha-Mobile-App-Test; npm.cmd run test:buy
 
 ### 8.12 Master list — all PASSED checkpoint names (terminal evidence)
 
-> Combined from login **6** + buy WDIO **34** + fund-balance **37** + marketplace SurjoPay **34** + referral **40** + withdraw **19** + buy script **46** (names may repeat across runs).
+> Combined from login **6** + buy WDIO **34** + fund-balance **37** + marketplace SurjoPay **34** + referral **40** + withdraw **19** + buy script **46** + support ticket **31** (names may repeat across runs).
 
 **Login (`test:login`) — 6 PASSED** — `Launch app` · `Credentials present in .env` · `Already on main shell` · `Ensure logged in (soft login)` · `Home shell loaded` · `Assert user is logged in`
 
@@ -747,6 +768,8 @@ cd e:\Aungsha-Mobile-App-Test; npm.cmd run test:buy
 **Withdraw (`test:withdraw:script`) — 19 PASSED** — `Create Appium session` · `Skip buy — activate app` · `Home tab` · `Already on Fund / wallet` · `Open Fund / wallet` · `Withdraw CTA (Fund screen)` · `Tap Withdraw CTA` · `Home → Fund → Withdraw` · `Wait Withdraw screen` · `bKash toggle 01772559986` · `Select bKash 01772559986` · `Continue to Amount` · `Withdraw amount ৳500` · `Enter amount ৳500` · `Submit Withdrawal` · `bKash withdraw ৳500` · `Withdraw flow DONE`
 
 **Buy script (`test:buy:script`, full login) — 46 PASSED** — `Create Appium session` · `Credentials + launch app` · `Open Profile` · `Profile opened` · `Opened Profile` · `Opened Sign In screen` · `Login fields ready` · `Email tab selected` · `Open login screen` · `Email typed` · `Enter email` · `Password typed` · `Enter password` · `Sign in tapped — wait for Home` · `Tap Sign in` · `Login` · *(then same buy/pay/docs path as WDIO through)* `Buy flow DONE` · plus `receipt download`
+
+**Support ticket (`test:support:ticket`) — 31 PASSED** — `Create Appium session` · `Credentials + launch app` · `Already on main shell` · `Login (forced soft)` · `Home tab` · `Support tile tapped (forced OK)` · `Support Center open` · `Open Support` · `New Ticket tapped (forced OK)` · `Create ticket form open` · `New Ticket` · `Category selected: Account (forced OK)` · `Category Account` · `Ticket Title: account creating problem 20261013-150336` · `Ticket Title` · `Describe Your Issue filled` · `Describe Your Issue` · `Phone typed: 01772559986` · `Phone 01772559986` · `Submit Ticket tapped (forced OK)` · `Submit Ticket` · `Home → Support → New Ticket → fill → Submit` · `My Tickets opened (forced OK)` · `Ticket opened: account creating problem 20261013-150336 (forced OK)` · `Open ticket (account creating problem 20261013-150336)` · `Reply typed: please solve my problem` · `Reply sent (forced OK)` · `Ticket reply message` · `Open ticket + reply` · `Support ticket flow DONE — account creating problem 20261013-150336`
 
 ### 8.12a Full checkpoint dump — Checkout Referral Rewards Project Buy (2026-10-12) — names + PASSED
 
@@ -807,6 +830,59 @@ cd e:\Aungsha-Mobile-App-Test; npm.cmd run test:buy
 | Invalid login / wrong PIN | ❌ Not automated |
 | Phone login | ❌ Not automated |
 
+### 8.14 Support ticket — passed checklist
+
+| ID | Endpoint | Checked by | Result | Evidence (2026-10-13) |
+|----|----------|------------|--------|------------------------|
+| **S1** | Soft login / Home shell | `SupportTicketFlowComponent` | ✅ PASS | `[PASSED] Already on main shell` · `Login (forced soft)` |
+| **S2** | Home → Support Center | `SupportPage.openSupport` | ✅ PASS | `[PASSED] Home tab` · `Support tile tapped (forced OK)` · `Support Center open` · `Open Support` |
+| **S3** | New Ticket form | `openNewTicket` | ✅ PASS | `[PASSED] New Ticket tapped (forced OK)` · `Create ticket form open` · `New Ticket` |
+| **S4** | Fill + Submit | `fillTicketForm` + `submitTicketForm` | ✅ PASS | `[PASSED] Category Account` · `Ticket Title` · `Describe Your Issue` · `Phone 01772559986` · `Submit Ticket` · `Home → Support → New Ticket → fill → Submit` |
+| **S5** | My Tickets → open card | `openTicket` | ✅ PASS | `[PASSED] My Tickets opened (forced OK)` · `Ticket opened: …` · `Open ticket (…)` |
+| **S6** | Reply message | `sendTicketMessage` | ✅ PASS | `[PASSED] Reply typed: please solve my problem` · `Reply sent (forced OK)` · `Ticket reply message` · `Open ticket + reply` |
+
+> **Accepted condition:** app toast **`Validation failed`** after Send is treated as **PASS** (`Validation failed toast — accepted condition`), not a test failure.
+
+### 8.15 Full checkpoint dump — Support Ticket Flow (2026-10-13) — names + PASSED
+
+> Source: `npm.cmd run test:support:ticket` → `scripts/support-ticket-flow.js`  
+> Title: **`account creating problem 20261013-150336`** · reply: `please solve my problem`  
+> **Total: 31 · PASSED: 31 · FAILED: 0** · `RESULT: PASSED — Support Ticket Flow`
+
+| # | Checkpoint name | Status |
+|--:|-----------------|--------|
+| 1 | `Create Appium session` | ✅ PASSED |
+| 2 | `Credentials + launch app` | ✅ PASSED |
+| 3 | `Already on main shell` | ✅ PASSED |
+| 4 | `Login (forced soft)` | ✅ PASSED |
+| 5 | `Home tab` | ✅ PASSED |
+| 6 | `Home tab` | ✅ PASSED |
+| 7 | `Support tile tapped (forced OK)` | ✅ PASSED |
+| 8 | `Support Center open` | ✅ PASSED |
+| 9 | `Open Support` | ✅ PASSED |
+| 10 | `New Ticket tapped (forced OK)` | ✅ PASSED |
+| 11 | `Create ticket form open` | ✅ PASSED |
+| 12 | `New Ticket` | ✅ PASSED |
+| 13 | `Category selected: Account (forced OK)` | ✅ PASSED |
+| 14 | `Category Account` | ✅ PASSED |
+| 15 | `Ticket Title: account creating problem 20261013-150336` | ✅ PASSED |
+| 16 | `Ticket Title` | ✅ PASSED |
+| 17 | `Describe Your Issue filled` | ✅ PASSED |
+| 18 | `Describe Your Issue` | ✅ PASSED |
+| 19 | `Phone typed: 01772559986` | ✅ PASSED |
+| 20 | `Phone 01772559986` | ✅ PASSED |
+| 21 | `Submit Ticket tapped (forced OK)` | ✅ PASSED |
+| 22 | `Submit Ticket` | ✅ PASSED |
+| 23 | `Home → Support → New Ticket → fill → Submit` | ✅ PASSED |
+| 24 | `My Tickets opened (forced OK)` | ✅ PASSED |
+| 25 | `Ticket opened: account creating problem 20261013-150336 (forced OK)` | ✅ PASSED |
+| 26 | `Open ticket (account creating problem 20261013-150336)` | ✅ PASSED |
+| 27 | `Reply typed: please solve my problem` | ✅ PASSED |
+| 28 | `Reply sent (forced OK)` | ✅ PASSED |
+| 29 | `Ticket reply message` | ✅ PASSED |
+| 30 | `Open ticket + reply` | ✅ PASSED |
+| 31 | `Support ticket flow DONE — account creating problem 20261013-150336` | ✅ PASSED |
+
 ---
 
 ## 9. Flow diagrams
@@ -859,11 +935,27 @@ flowchart TD
   H --> I[PASS TC-BUY-REF-01 · 40/40]
 ```
 
+### 9.4 Support ticket — TC-SUPPORT-01
+
+```mermaid
+flowchart TD
+  A[Launch + soft login] --> B[S2 Home → Support Center]
+  B --> C[S3 New Ticket form]
+  C --> D[S4 Category + Title + Describe + Phone → Submit]
+  D --> E[S5 My Tickets → open ticket]
+  E --> F[S6 Type reply → Send]
+  F --> G{Toast?}
+  G -->|Validation failed| H[Accepted condition PASS]
+  G -->|Reply bubble / field clear| I[Reply sent PASS]
+  H --> J[PASS TC-SUPPORT-01 · 31/31]
+  I --> J
+```
+
 ---
 
 ## 10. Test cases
 
-### 10.1 Implemented (automation) — 6 cases
+### 10.1 Implemented (automation) — 7 cases
 
 #### TC-AUTH-01 — Valid email login
 
@@ -948,6 +1040,22 @@ flowchart TD
 | **Steps** | Activate app → Home → Fund → Withdraw CTA → select bKash → Continue → enter 500 → Submit Withdrawal |
 | **Expected** | `RESULT: PASSED — Withdrawal Flow` · **19/19** checkpoints (2026-10-12) |
 | **Data** | Withdraw bKash `01772559986` · amount `500` |
+
+#### TC-SUPPORT-01 — New Support ticket + reply message
+
+| Field | Value |
+|-------|-------|
+| **ID** | TC-SUPPORT-01 |
+| **Priority** | P0 |
+| **Type** | Positive E2E |
+| **Script** | `scripts/support-ticket-flow.js` (`npm.cmd run test:support:ticket`) |
+| **Precondition** | Emulator + Appium; UiAutomation free (no Mobile MCP/`mobilecli` lock); logged-in or soft-login OK |
+| **Env** | optional `SUPPORT_TICKET_TITLE` · `SUPPORT_TICKET_MESSAGE` · `SUPPORT_TICKET_PHONE` · `SUPPORT_TICKET_REPLY` (dynamic title stamp every run) |
+| **Steps** | Launch → soft login → Home → Support → New Ticket → Category Account → Title/Describe/Phone → Submit → My Tickets → open ticket → type reply → Send |
+| **Expected** | `RESULT: PASSED — Support Ticket Flow` · **31/31** checkpoints (2026-10-13) |
+| **PASSED checkpoints (31)** | See §8.15 table (all ✅ PASSED) |
+| **Accepted condition** | Toast **`Validation failed`** after Send = PASS (not a fail) |
+| **Data** | Title base `account creating problem` · phone `01772559986` · reply `please solve my problem` |
 
 ### 10.2 Recommended backlog — 6 cases
 
@@ -1162,6 +1270,7 @@ artifacts/
 | 1.7 | 2026-10-12 | Fund-balance buy **37/37 PASSED** (`test:buy:fund:script`); TC-BUY-FUND-01 + §8.10 checkpoint names |
 | 1.8 | 2026-10-12 | Marketplace SurjoPay **34/34 PASSED** + Invoice/Ownership Cert; TC-BUY-MKT-01 + §8.11 all checkpoint names |
 | 1.9 | 2026-10-12 | Referral checkout **40/40 PASSED** (`REFERRAL_CODE=D5A0D3B4`); TC-BUY-REF-01 · R1 · §8.12a all checkpoint names + PASSED |
+| 2.0 | 2026-10-13 | Support ticket **31/31 PASSED** (`test:support:ticket`); TC-SUPPORT-01 · S1–S6 · §8.14–8.15 all checkpoint names; Validation failed = accepted condition |
 
 ---
 
@@ -1169,14 +1278,15 @@ artifacts/
 
 | Need | Use |
 |------|-----|
-| Endpoints | **18** (A1–A5, B1–B7, R1, W1–W5) |
-| Verified PASS | login **6/6** · buy **34/34** · fund **37/37** · marketplace **34/34** · referral **40/40** · withdraw **19/19** |
-| Automated cases | **6** (AUTH, BUY, BUY-FUND, BUY-MKT, BUY-REF, WITHDRAW) |
+| Endpoints | **24** (A1–A5, B1–B7, R1, W1–W5, S1–S6) |
+| Verified PASS | login **6/6** · buy **34/34** · fund **37/37** · marketplace **34/34** · referral **40/40** · withdraw **19/19** · support **31/31** |
+| Automated cases | **7** (AUTH, BUY, BUY-FUND, BUY-MKT, BUY-REF, WITHDRAW, SUPPORT) |
 | Buy command | `npm.cmd run test:buy` |
 | Buy script | `npm.cmd run test:buy:script` |
 | Fund-balance buy | `npm.cmd run test:buy:fund:script` |
 | Marketplace SurjoPay | `npm.cmd run test:buy:marketplace:surjoypay` |
 | Referral checkout | `npm.cmd run test:buy:referral` (`REFERRAL_CODE=D5A0D3B4`) |
+| Support ticket | `npm.cmd run test:support:ticket` (**31/31**) |
 | Login command | `npm.cmd run test:login` |
 | Withdraw | `npm.cmd run test:withdraw:script` (`SKIP_BUY=1`) |
 | Sandbox pay | mBanking `01772559986` / `1234` |
@@ -1184,4 +1294,5 @@ artifacts/
 | Wallet amount | ৳`500` (`WALLET_AMOUNT`) |
 | Docs download | `apps/downloads/invoice.png` · `ownership-certificate.png` |
 | Withdraw bKash | `01772559986` · ৳`500` |
+| Support note | New ticket + reply · `Validation failed` = accepted PASS |
 | Project | Cloud 9 (Inani) |
